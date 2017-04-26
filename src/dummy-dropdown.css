@@ -96,6 +96,8 @@
    border-top-right-radius: 0px;
    border-top: none;
    width: 100%;
+   /*max-height: 300px;*/
+   overflow-y: scroll;
    box-sizing: content-box;
 }
 
@@ -106,4 +108,36 @@
 
 .dd-wrapper .dd-item:hover {
    background-color: #efefef;
+}
+
+.dd-v {
+   display: inline-block;
+   width: auto;
+   background-color: #6285af;
+   margin: 3px 5px;
+   margin-left: 0px;
+   color: white;
+   padding: 0px 6px;
+   border-radius: 3px;
+   height: 20px;
+}
+
+.dd-v .dd-delete {
+   font-size: 18px;
+   margin-left: 4px;
+   opacity: 0.5;
+   -webkit-transition: opacity 0.2s;
+   transition: opacity 0.2s;
+}
+
+.dd-delete:hover {
+   opacity: 1;
+}
+
+.dd-v .dd-text, .dd-v .dd-delete {
+   display: inline-block;
+   width: auto;
+   line-height: 20px;
+   height: 20px;
+   vertical-align: top;
 }
