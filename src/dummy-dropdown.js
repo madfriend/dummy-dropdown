@@ -1,15 +1,55 @@
-var DummyDropdown = (function defineClass() {
+var DummyDropdown = (function() {
 ///////////////////////////////////////////////////////////////////////////////
-    function Dropdown(options) {
+    var console = console || {log: function() {}};
+
+    function DropdownCollection(selector, options) {
         if (typeof options != 'object') options = {};
         var defaults = {
             multiselect: false,
             combobox: false,
-            withPictures: true
+            withImages: true,
+            withDesc: true
         };
 
         this._options = _extendObject(defaults, options);
+
+        var results = [];
+        try {
+            results = document.querySelectorAll(selector);
+        } catch (e) {
+            console.log('Check your selector. ' + e);
+        }
+
+        var _nodes = filterNodesByTag(results, 'select');
+        this.dropdowns = [];
+        for (var i = 0; i < _nodes.length; i++) {
+            this.dropdowns.push(new Dropdown(_nodes[i], this._options));
+        };
     }
+
+    DropdownCollection.prototype.get = function(i) {
+        return this.dropdowns[i || 0];
+    };
+
+    function Dropdown(selectNode, options) {
+
+    };
+
+    Dropdown.prototype._initState = function() {
+
+    };
+
+    Dropdown.prototype._prepareLayout = function(selectNode) {
+
+    };
+
+    // Value getters-setters
+    Dropdown.prototype.getValue = function() {};
+    Dropdown.prototype.setValue = function(v) {};
+    Dropdown.prototype.val = function(v) {
+        return v ? this.setValue(v) : this.getValue();
+    };
+
 
 //// Utilities ////////////////////////////////////////////////////////////////
     function _extendObject(A, B) {
@@ -18,14 +58,23 @@ var DummyDropdown = (function defineClass() {
         // This function should be used only for plain, one-dimension objects
         // where values are simple primitives (bool, int, str).
         var C = {};
-        for (key in A) {
+        for (var key in A) {
             if (!A.hasOwnProperty(key)) continue;
             C[key] = A[key];
             if (B.hasOwnProperty(key)) C[key] = B[key];
         }
         return C;
-    }
+    } // end _extendObject
 
-    return Dropdown;
-//// end defineClass //////////////////////////////////////////////////////////
+    function filterNodesByTag(nodes, tag) {
+        var results = [];
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].tagName.toLowerCase() == tag)
+                results.push(nodes[i]);
+        };
+        return results;
+    } // end filterNodesByTag
+
+    return DropdownCollection;
+///////////////////////////////////////////////////////////////////////////////
 })();
