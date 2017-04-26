@@ -4,54 +4,15 @@
     <meta charset="UTF-8">
     <title>DummyDropdown demo page</title>
     <script src="../src/dummy-dropdown.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont,
-                'Helvetica Neue', Arial, sans-serif;
-            background-color: #f9f9f9;
-        }
-        header {
-            font-size: 1.5em;
-            padding: 10px;
-            font-weight: bold;
-            margin-bottom: 0;
-        }
-        .hero {
-            display: block;
-            color: #aaa;
-            font-size: 1.2em;
-            padding: 10px;
-        }
-        .hero p {
-            margin: 0;
-        }
-
-        main {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-        main div {
-            width: 33%;
-            min-width: 200px;
-            box-sizing: border-box;
-            min-height: 150px;
-            padding: 10px;
-        }
-        main div p:first-child {
-            font-weight: bold;
-        }
-        pre {
-            background-color: #f0f0f0;
-            border-radius: 3px;
-            padding: 5px;
-            overflow: hidden;
-        }
-        select {
-            min-width: 45%;
-        }
-
-    </style>
+    <script>
+      function prepare(id) {
+        var sel = document.getElementById("select-template").cloneNode(true);
+        var playground = document.getElementById("p-" + id);
+        sel.id = id;
+        playground.appendChild(sel);
+      }
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/examples.css"/>
 </head>
 <body>
     <header>Примеры использования DummyDropdown.js</header>
@@ -64,57 +25,49 @@ combobox: false,    // возможность ввода текста для п�
 withImages: true,   // показывать ли в списке картинки
 withDesc: true      // показывать ли описания
 </pre>
-    </p>
+        </p>
     </div>
+
+    <select id="select-template">
+        <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
+        <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
+    </select>
+
     <main>
         <div>
             <p>Простой селект</p>
-            <p>
-                <select id="ex1">
-                    <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                    <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-                </select>
-            </p>
+            <p class="playground" id="p-ex1"></p>
             <script>
-                new DummyDropdown("#ex1");
+  prepare("ex1");
+  new DummyDropdown("#ex1");
             </script>
         </div>
 
         <div>
             <p>Множественный выбор</p>
-            <p>
-                <select id="ex2">
-                    <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                    <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-                </select>
-            </p>
+            <p class="playground" id="p-ex2"></p>
             <script>
-                new DummyDropdown("#ex2", {multiselect: true});
+              prepare("ex2");
+              new DummyDropdown("#ex2",
+                {multiselect: true});
             </script>
         </div>
 
         <div>
             <p>Комбобокс</p>
-            <p>
-                <select id="ex3">
-                    <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                    <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-                </select>
-            </p>
+            <p class="playground" id="p-ex3"></p>
             <script>
-                new DummyDropdown("#ex3", {combobox: true});
+              prepare("ex3");
+              new DummyDropdown("#ex3",
+                {combobox: true});
             </script>
         </div>
 
         <div>
             <p>Селект с картинками <br/>(атрибут <code>data-img</code> у <code>option</code>)</p>
-            <p>
-              <select id="ex4">
-                  <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                  <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-              </select>
-            </p>
+            <p class="playground" id="p-ex4"></p>
             <script>
+                prepare("ex4");
                 new DummyDropdown("#ex4", {withImages: true});
             </script>
         </div>
@@ -122,60 +75,49 @@ withDesc: true      // показывать ли описания
         <div>
             <p>Селект с картинками и описанием
             <br/>(атрибуты <code>data-img</code> + <code>data-desc</code>)</p>
-            <p>
-                <select id="ex5">
-                  <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                  <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-              </select>
-            </p>
+            <p class="playground" id="p-ex5"></p>
             <script>
-                new DummyDropdown("#ex5",
-    {withImages: true, withDesc: true});
+              prepare("ex5");
+              new DummyDropdown("#ex5",
+                {withImages: true, withDesc: true});
             </script>
         </div>
 
         <div>
             <p>Комбобокс, множественный выбор, картинки, описания</p>
-            <p>
-                <select id="ex6">
-                  <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                  <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-              </select>
-            </p>
+            <p class="playground" id="p-ex6"></p>
             <script>
-                new DummyDropdown("#ex6", {
-    withImages: true, withDesc: true,
-    combobox: true,   multiselect: true
-});
+              prepare("ex6");
+              new DummyDropdown("#ex6", {
+                withImages: true, withDesc: true,
+                combobox: true,   multiselect: true
+              });
             </script>
         </div>
 
         <div>
             <p>Несколько дропдаунов сразу</p>
-            <p>
-                <select class="ex8">
-                  <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                  <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-                </select>
-
-                <select class="ex8">
-                  <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-                  <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
-                </select>
-            </p>
+            <p class="playground" id="p-ex7"></p>
+            <p class="playground" id="p-ex8"></p>
             <script>
-                new DummyDropdown(".ex8", {withImages: true});
+              prepare("ex7"); prepare("ex8");
+              new DummyDropdown("#ex7, #ex8",
+                {withImages: true});
             </script>
         </div>
 
     </main>
 
     <script>
+        function dedent(text) {
+          return text.replace(/\n\s+/g, '\n');
+        }
+
         var scriptNodes = document.querySelectorAll("main script");
         for (var i = 0; i < scriptNodes.length; i++) {
             var s = scriptNodes[i];
             var pre = document.createElement("PRE");
-            pre.innerHTML = s.innerText.trim();
+            pre.innerHTML = dedent(s.innerText.trim());
             s.parentNode.appendChild(pre);
         };
     </script>

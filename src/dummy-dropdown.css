@@ -1,0 +1,109 @@
+.dd-n {
+   width: 100%;
+   min-width: initial;
+   max-width: initial;
+   height: auto;
+   min-height: initial;
+   max-height: initial;
+   padding: 0;
+   margin: 0;
+}
+
+.dd-wrapper {
+   display: inline-block;
+   position: relative;
+   height: 25px;
+   line-height: 25px;
+   font-size: 13px;
+   color: #444;
+   min-width: 100px;
+   box-sizing: content-box;
+   border: solid 1px #ccc;
+   border-radius: 3px;
+   background-color: #fefefe;
+   vertical-align: bottom;
+   margin-right: 5px;
+}
+
+.dd-hidden {
+   display: none;
+}
+
+.dd-head {
+   height: 25px;
+}
+
+.dd-wrapper:focus {
+   outline: 0;
+}
+
+.dd-wrapper.dd-focused {
+   border: 1px solid #4D90FE;
+   /*-webkit-box-shadow: 0px 0px 5px  #4D90FE;
+   box-shadow: 0px 0px 5px  #4D90FE;*/
+}
+
+.dd-wrapper.dd-focused .dd-bottom {
+   border: 1px solid #4D90FE;
+   border-top: none;
+   /*-webkit-box-shadow: 0px 0px 5px  #4D90FE;
+   box-shadow: 0px 0px 5px  #4D90FE;*/
+}
+
+.dd-head .dd-value {
+   display: inline-block;
+   overflow: hidden;
+   width: 95%;
+   height: 25px;
+   box-sizing: border-box;
+   padding: 0px 6px;
+   cursor: pointer;
+}
+
+.dd-head .dd-arrow {
+   display: inline-block;
+   font-size: 16px;
+   width: 25px;
+   height: 25px;
+   text-align: center;
+   line-height: 25px;
+   vertical-align: top;
+   cursor: pointer;
+
+   -webkit-transition: all 0.2s;
+   transition: all 0.2s;
+}
+
+.dd-arrow.dd-down {
+   -webkit-transform: rotate(90deg);
+   transform: rotate(90deg);
+}
+
+.dd-arrow.dd-up {
+   -webkit-transform: rotate(-90deg);
+   transform: rotate(-90deg);
+}
+
+.dd-wrapper .dd-bottom {
+   background-color: #f6f6f6;
+   z-index: 101;
+   position: absolute;
+   top: 24px; /* -1 to overlap dd-head bottom-border */
+   left: -1px; /* -1 because dd-bottom has left-border */
+   border-radius: 3px;
+   border: solid 1px #ccc;
+   border-top-left-radius: 0px;
+   border-top-right-radius: 0px;
+   border-top: none;
+   width: 100%;
+   box-sizing: content-box;
+}
+
+.dd-wrapper .dd-item {
+   padding: 0px 6px;
+   cursor: pointer;
+}
+
+.dd-wrapper .dd-item:hover {
+   background-color: #efefef;
+}
