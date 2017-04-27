@@ -111,17 +111,18 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleMouseover = function(event) {
-      if (hasClass(event.target, 'dd-item')) {
+      var tgt = event.target;
+      if (anyParentHasClass(tgt, 'dd-item')) {
+         tgt = findParentOrSelfWithClass(tgt, 'dd-item');
          event.stopPropagation();
-         if (hasClass(event.target, 'dd-hover')) return false;
-         var el = event.target;
+         if (hasClass(tgt, 'dd-hover')) return false;
          var other = this._wrapper.querySelectorAll('.dd-hover');
 
          for (var i = 0; i < other.length; i++) {
             removeClass(other[i], 'dd-hover');
          }
 
-         el.className += ' dd-hover';
+         tgt.className += ' dd-hover';
       }
    };
 
@@ -147,19 +148,23 @@ var DummyDropdown = (function() {
    Dropdown.prototype._handleClick = function(event) {
       // console.log('click', event.target);
       event.stopPropagation();
+      var tgt = event.target;
 
-      if (hasClass(event.target, 'dd-item')) {
+      if (anyParentHasClass(tgt, 'dd-item')) {
+         tgt = findParentOrSelfWithClass(tgt, 'dd-item');
+         if (hasClass(tgt, 'dd-selected')) return false;
+
          if (!this._state.options.multiselect) {
-            this.setValue([event.target.getAttribute('data-value')]);
+            this.setValue([tgt.getAttribute('data-value')]);
          } else {
             var v = this.getValue();
-            this.setValue(v.concat([event.target.getAttribute('data-value')]));
+            this.setValue(v.concat([tgt.getAttribute('data-value')]));
          }
          this.close();
          return false;
       }
 
-      if (hasClass(event.target, 'dd-delete')) {
+      if (hasClass(tgt, 'dd-delete')) {
          this._handleDelete(event);
       }
 
@@ -210,7 +215,7 @@ var DummyDropdown = (function() {
             next.className += ' dd-hover';
 
             if (!checkInView(next.parentNode, next))
-               next.scrollIntoView(false);
+               next.parentNode.scrollTop += next.clientHeight;
 
             if (current) removeClass(current, 'dd-hover');
             return false;
@@ -223,6 +228,8 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._listContentsHTML = function() {
       var contents = '';
+      if (!this._state.isOpen) return '';
+
       var item, markup;
 
       var value = this.getValue();
@@ -242,11 +249,46 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._listItemHTML = function(item, cls) {
+      var tpl = '';
       var contents = '';
-      // if (this._state.options.withImg) {
-      //    contents += '<div class="dd-n dd-img"></div>';
-      // }
-      contents = item.text;
+
+      if (this._state.options.withImages && this._state.options.withDesc) {
+         tpl = '<div class="dd-n dd-tbl">' +
+               '<div class="dd-n dd-img dd-left">' +
+                  (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
+               '</div>' +
+               '<div class="dd-n dd-right">' +
+                  '<div class="dd-n dd-t">{{text}}</div>' +
+                  '<div class="dd-n dd-desc">{{desc}}</div>' +
+               '</div></div>';
+      }
+
+      else if (this._state.options.withImages && !this._state.options.withDesc) {
+         tpl = '<div class="dd-n dd-tbl">' +
+               '<div class="dd-n dd-img dd-fl">' +
+               (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
+               '</div>' +
+               '<div class="dd-n dd-fr">' +
+                  '<div class="dd-n dd-t">{{text}}</div>' +
+               '</div></div>';
+      }
+
+      else if (this._state.options.withDesc) {
+         tpl = '<div class="dd-n">' +
+                  '<div class="dd-n dd-t">{{text}}</div>' +
+                  '<div class="dd-n dd-desc">{{desc}}</div>' +
+               '</div>';
+      }
+      else {
+         tpl = '<div class="dd-n">' +
+                  '<div class="dd-n dd-t">{{text}}</div>' +
+               '</div>';
+      }
+
+      contents = tpl.replace('{{text}}', item.text)
+                    .replace('{{desc}}', item.desc)
+                    .replace('{{src}}', item.img);
+
       return '<div class="dd-n dd-item ' + cls + '" data-value="' + item.value + '">' +
          contents + '</div>';
    };
@@ -314,8 +356,8 @@ var DummyDropdown = (function() {
          var o = options[i];
          results.push({
             'value': o.value,
-            'img':   o.getAttribute('data-img'),
-            'desc':  o.getAttribute('data-desc'),
+            'img':   o.getAttribute('data-img') || false,
+            'desc':  o.getAttribute('data-desc') || '',
             'text':  o.text
          });
       }
@@ -392,7 +434,7 @@ var DummyDropdown = (function() {
       var parent = node.parentNode;
       if (!parent) return false;
       if (hasClass(parent, cls)) return parent;
-      return findParentWithClass(parent, cls);
+      return findParentOrSelfWithClass(parent, cls);
    } // end findParentWithClass
 
    function removeClass(node, cls) {
