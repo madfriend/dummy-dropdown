@@ -12,8 +12,8 @@ var DummyDropdown = (function() {
       var defaults = {
          multiselect: false,
          combobox: false,
-         withImages: true,
-         withDesc: true,
+         withImages: false,
+         withDesc: false,
          ajaxMatchURL: false
       };
 
@@ -265,10 +265,10 @@ var DummyDropdown = (function() {
 
       else if (this._state.options.withImages && !this._state.options.withDesc) {
          tpl = '<div class="dd-n dd-tbl">' +
-               '<div class="dd-n dd-img dd-fl">' +
+               '<div class="dd-n dd-img dd-left">' +
                (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
                '</div>' +
-               '<div class="dd-n dd-fr">' +
+               '<div class="dd-n dd-right">' +
                   '<div class="dd-n dd-t">{{text}}</div>' +
                '</div></div>';
       }
