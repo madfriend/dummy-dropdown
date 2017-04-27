@@ -95,6 +95,8 @@ var DummyDropdown = (function() {
 
       this._wrapper.addEventListener('focus', this._handleFocus.bind(this));
       this._wrapper.addEventListener('blur', this._handleBlur.bind(this));
+
+      this._wrapper.addEventListener('mouseover', this._handleMouseover.bind(this));
    };
 
    Dropdown.prototype._handleFocus = function(event) {
@@ -110,6 +112,21 @@ var DummyDropdown = (function() {
       }
 
       return false;
+   };
+
+   Dropdown.prototype._handleMouseover = function(event) {
+      if (hasClass(event.target, 'dd-item')) {
+         event.stopPropagation();
+         if (hasClass(event.target, 'dd-hover')) return false;
+         var el = event.target;
+         var other = this._wrapper.querySelectorAll('.dd-hover');
+
+         for (var i = 0; i < other.length; i++) {
+            removeClass(other[i], 'dd-hover');
+         }
+
+         el.className += ' dd-hover';
+      }
    };
 
    Dropdown.prototype._handleBlur = function(event) {
@@ -339,6 +356,11 @@ var DummyDropdown = (function() {
       if (hasClass(parent, cls)) return parent;
       return findParentWithClass(parent, cls);
    } // end findParentWithClass
+
+   function removeClass(node, cls) {
+      var r = new RegExp('\\b' + cls + '\\b', 'g');
+      node.className = node.className.replace(r, ' ');
+   } // add removeClass
 
    return DropdownCollection;
 ///////////////////////////////////////////////////////////////////////////////
