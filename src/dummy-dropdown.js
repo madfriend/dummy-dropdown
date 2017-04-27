@@ -42,24 +42,40 @@ var DummyDropdown = (function() {
    function Dropdown(selectNode, options) {
       this._state = {};
       this._initState(selectNode, options);
+      this._timer = false;
+
       this._wrapper = this._prepareLayout(selectNode);
       this.render();
       this._bindEventListeners();
    };
 
-   Dropdown.prototype._initState = function(node, options) {
-      this._state.items = this._parseOptionNodes(node);
-      this._state.visibleItems = this._state.items.slice(0);
+   var arrowWidth = 25;
+   var kbdDebounceTimeout = 100;
+   var maxResultsLen = 30;
 
-      this._arrowWidth = 25;
+   Dropdown.prototype._initState = function(node, options) {
+      this._state.options = options;
+      this._state.items = this._parseOptionNodes(node);
+      this._state.visibleItems = this._initVisibleItems();
+      this._state.searchQuery = '';
 
       this._state.isOpen = false;
       this._state.isFocused = false;
       this._state.isRubbery = options.multiselect;
 
       this._state.value = false;
-      this._state.options = options;
       this._state.placeholder = 'Выберите что-нибудь';
+
+      this._searchIndex = {};
+      if (options.combobox) {
+         window.setTimeout(this._initSearchIndex.bind(this), 0);
+      }
+   };
+
+   Dropdown.prototype._initVisibleItems = function() {
+      if (this._state.options.combobox)
+         return this._state.items.slice(0, maxResultsLen);
+      return this._state.items.slice(0);
    };
 
    Dropdown.prototype._prepareLayout = function(node) {
@@ -79,8 +95,9 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype.render = function() {
       console.time('render');
+      // console.log(this._state);
       var wrapper = this._wrapper;
-      var ww = parseFloat(wrapper.style.width) - this._arrowWidth;
+      var ww = parseFloat(wrapper.style.width) - arrowWidth;
 
       var markup = '';
       markup += (this._state.options.combobox ?
@@ -96,10 +113,33 @@ var DummyDropdown = (function() {
          (this._state.isRubbery ? ' dd-rubbery' : '');
    };
 
+   Dropdown.prototype._renderTail = function() {
+      console.time('renderTail');
+      var btm = this._wrapper.querySelector('.dd-bottom');
+      btm.innerHTML = this._listContentsHTML(false);
+      console.timeEnd('renderTail');
+   };
+
+   Dropdown.prototype._initSearchIndex = function() {
+      var items = this._state.items;
+      var index = this._searchIndex;
+
+      for (var i = 0; i < items.length; i++) {
+         index[items[i].value] = [];
+         var tokens = items[i].value.split(/\s+/);
+         for (var j = 0; j < tokens.length; j++) {
+            index[items[i].value] = index[items[i].value].concat(
+               allKeyboardLayoutInvariants(tokens[j].toLowerCase()));
+         }
+      };
+      console.log('built search index', this._searchIndex);
+   };
+
    Dropdown.prototype._bindEventListeners = function() {
       this._wrapper.addEventListener('mouseup', this._handleClick.bind(this));
-      this._wrapper.addEventListener('keydown', this._handleKeyboard.bind(this));
-         // debounce(this._handleKeyboard.bind(this), 20));
+      this._wrapper.addEventListener('keydown', this._handleSpecialKeys.bind(this));
+      this._wrapper.addEventListener('keyup', debounce(
+         this._handleTextInput.bind(this), kbdDebounceTimeout));
 
       this._wrapper.addEventListener('focus', this._handleFocus.bind(this));
       this._wrapper.addEventListener('focusout', this._handleFocusout.bind(this));
@@ -135,7 +175,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleFocusout = function(event) {
-      console.log('focusout', event);
+      // console.log('focusout', event);
       var t = event.relatedTarget || false;
       if (t && hasClass(t, 'dd-input')) return false;
 
@@ -170,6 +210,7 @@ var DummyDropdown = (function() {
             this.setValue([tgt.getAttribute('data-value')]);
          } else {
             var v = this.getValue();
+            console.log('concat', v, tgt.getAttribute('data-value'));
             this.setValue(v.concat([tgt.getAttribute('data-value')]));
          }
          this.close();
@@ -189,8 +230,12 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype.close = function() {
       if (!this._state.isOpen) return true;
+
       this._state.isOpen = false;
       this._state.isFocused = false;
+      this._state.searchQuery = '';
+      this._state.visibleItems = this._initVisibleItems();
+
       this._wrapper.blur();
       this.render();
       return true;
@@ -205,12 +250,14 @@ var DummyDropdown = (function() {
       return true;
    };
 
-   Dropdown.prototype._handleKeyboard = function(event) {
-      var specialCodes = [38, 40, 13]; // up, down, enter
+   Dropdown.prototype._handleSpecialKeys = function(event) {
+      var specialCodes = [38, 40, 13, 27]; // up, down, enter, esc
 
       if (specialCodes.indexOf(event.keyCode) >= 0) {
          event.stopImmediatePropagation();
          event.preventDefault();
+      } else {
+         return false;
       }
 
       var current = this._wrapper.querySelector('.dd-hover');
@@ -264,28 +311,94 @@ var DummyDropdown = (function() {
             return false;
             break;
 
+         case 27: // esc
+            this.close();
+            break;
+
          default:
             break;
       }
    };
 
-   Dropdown.prototype._listContentsHTML = function() {
-      var contents = '';
-      if (!this._state.isOpen) return '';
+   Dropdown.prototype._handleTextInput = function(event) {
+      if (!this._state.isOpen || !this._state.options.combobox) return false;
+      var specialCodes = [38, 40, 13, 27]; // up, down, enter, esc
+      if (specialCodes.indexOf(event.keyCode) >= 0) return false;
 
-      var item, markup;
+      var input = this._wrapper.querySelector('.dd-input');
+      var val = input.value;
+      if (val === this._state.searchQuery) return false;
 
-      var value = this.getValue();
+      window.clearTimeout(this._timer);
+      this._timer = window.setTimeout(function() {
+         this._state.searchQuery = val;
+         this._updateVisibleItems();
+         this._renderTail();
+      }.bind(this), 0);
 
-      for (var i = 0; i < this._state.visibleItems.length; i++) {
-         item = this._state.visibleItems[i];
-         var cls = '';
-         if (value.indexOf(item.value) > -1) cls = 'dd-selected';
-         markup = this._listItemHTML(item, cls);
-         contents += markup;
+      return false;
+   };
+
+   Dropdown.prototype._updateVisibleItems = function() {
+      console.time('updateVisible');
+      var query = this._state.searchQuery;
+      if (!query) {
+         this._state.visibleItems = this._initVisibleItems();
+         return true;
       }
 
-      if (!contents) return '';
+      var l = 0;
+      var filtered = [];
+
+      for (var i = 0; i < this._state.items.length; i++) {
+         var item = this._state.items[i];
+         if (this._matchesQuery(item)) {
+            l++;
+            filtered.push(item);
+         }
+         if (l >= maxResultsLen) break;
+      };
+      this._state.visibleItems = filtered;
+      console.timeEnd('updateVisible');
+      return true;
+   };
+
+   Dropdown.prototype._matchesQuery = function(item) {
+      var q = this._state.searchQuery;
+      var tests = this._searchIndex[item.value] || item.value.split(/\s+/);
+      for (var i = 0; i < tests.length; i++) {
+         if (startsWith(tests[i], q.toLowerCase())) return true;
+      };
+      return false;
+   };
+
+   Dropdown.prototype._listContentsHTML = function(asOuterHTML) {
+      if (typeof asOuterHTML === 'undefined') asOuterHTML = true;
+
+      var contents = '';
+
+      if (this._state.isOpen && this._state.visibleItems.length > 0) {
+         var item, markup;
+         var value = this.getValue();
+
+         var foundFirstActive = false;
+         for (var i = 0; i < this._state.visibleItems.length; i++) {
+            item = this._state.visibleItems[i];
+            var cls = '';
+            var selected = value.indexOf(item.value) > -1;
+
+            if (!foundFirstActive && !selected) {
+               cls = 'dd-hover';
+               foundFirstActive = true;
+            }
+            if (selected) cls = 'dd-selected';
+
+            markup = this._listItemHTML(item, cls);
+            contents += markup;
+         }
+      }
+
+      if (!asOuterHTML) return contents;
 
       var cls = this._state.isOpen ? '' : 'dd-hidden';
       return '<div class="dd-n dd-bottom ' + cls + '">' + contents + '</div>';
@@ -531,6 +644,59 @@ var DummyDropdown = (function() {
       var is = (eTop >= cTop && eBottom <= cBottom);
       return is;
    } // end checkInView
+
+   function startsWith(haystack, needle) {
+      return haystack.lastIndexOf(needle, 0) === 0;
+   } // end startsWith
+
+   function allKeyboardLayoutInvariants(word) {
+      return [word, swapLayout(word),
+         translit(word), swapLayout(translit(word))];
+   } // end allKeyboardVariants
+
+   var enru = [
+      'qй', 'wц', 'eу', 'rк', 'tе', 'yн', 'uг', 'iш', 'oщ', 'pз', '[х', '{Х',
+      ']ъ', '}Ъ', '|/', '`ё', '~Ё', 'aф', 'sы', 'dв', 'fа', 'gп', 'hр', 'jо',
+      'kл', 'lд', ';ж', ':Ж', "'э", '"Э', 'zя', 'xч', 'cс', 'vм', 'bи', 'nт',
+      'mь', ',б', '<Б', '.ю', '>Ю', '/.', '?, ', '@"', '#№', '$;', '^:', '&?'
+   ];
+   var layoutMap = {};
+   for (var i = 0; i < enru.length; i++) {
+      layoutMap[enru[i][0]] = enru[i][1];
+      layoutMap[enru[i][1]] = enru[i][0];
+   };
+
+   function swapLayout(word) {
+      var out = '';
+      for (var i = 0; i < word.length; i++)
+         out += (layoutMap[word[i]] || word[i]);
+      return out;
+   }
+
+   var translitMap = [
+      'щ ш ч ц ю я ё ж ъ ы э а б в г д е з и й к л м н о п р с т у ф х ь'.split(' '),
+      "shh sh ch cz yu ya yo zh `` y' e` a b v g d e z i j k l m n o p r s t u f x `".split(' ')
+   ];
+
+   function translit(word) {
+      // detect lang
+      var ruMatches = 0;
+      var enMatches = 0;
+
+      for (var i = 0; i < translitMap[0].length; i++)
+         ruMatches += (word.indexOf(translitMap[0][i]) >= 0 ? 1 : 0);
+      for (var j = 0; j < translitMap[1].length; j++)
+         enMatches += (word.indexOf(translitMap[1][j]) >= 0 ? 1 : 0);
+
+      var engToRus = (enMatches > ruMatches);
+      var rus = translitMap[0], eng = translitMap[1];
+
+      for(var x = 0; x < rus.length; x++) {
+         word = word.split(engToRus ? eng[x] : rus[x]).join(engToRus ? rus[x] : eng[x]);
+         word = word.split(engToRus ? eng[x].toUpperCase() : rus[x].toUpperCase()).join(engToRus ? rus[x].toUpperCase() : eng[x].toUpperCase());
+      }
+      return word;
+   } // end translit
 
    return DropdownCollection;
 ///////////////////////////////////////////////////////////////////////////////
