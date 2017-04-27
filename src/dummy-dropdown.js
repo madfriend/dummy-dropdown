@@ -102,7 +102,7 @@ var DummyDropdown = (function() {
          // debounce(this._handleKeyboard.bind(this), 20));
 
       this._wrapper.addEventListener('focus', this._handleFocus.bind(this));
-      this._wrapper.addEventListener('blur', this._handleBlur.bind(this));
+      this._wrapper.addEventListener('focusout', this._handleFocusout.bind(this));
 
       this._wrapper.addEventListener('mouseover', this._handleMouseover.bind(this));
    };
@@ -112,6 +112,8 @@ var DummyDropdown = (function() {
       this._state.isFocused = true;
       this._state.isOpen = true;
       this.render();
+
+      if (this._state.options.combobox) this._focusOnInput();
 
       return false;
    };
@@ -132,7 +134,11 @@ var DummyDropdown = (function() {
       }
    };
 
-   Dropdown.prototype._handleBlur = function(event) {
+   Dropdown.prototype._handleFocusout = function(event) {
+      console.log('focusout', event);
+      var t = event.relatedTarget || false;
+      if (t && hasClass(t, 'dd-input')) return false;
+
       event.stopPropagation();
       this._state.isFocused = false;
       this.close();
@@ -174,6 +180,10 @@ var DummyDropdown = (function() {
          this._handleDelete(event);
       }
 
+      if (anyParentHasClass(tgt, 'dd-input')) {
+         this._focusOnInput();
+      }
+
       return false;
    };
 
@@ -185,6 +195,15 @@ var DummyDropdown = (function() {
       this.render();
       return true;
    }
+
+   Dropdown.prototype._focusOnInput = function() {
+      var i = this._wrapper.querySelector('.dd-input');
+      i.focus();
+      var v = i.value;
+      i.value = '';
+      i.value = v;
+      return true;
+   };
 
    Dropdown.prototype._handleKeyboard = function(event) {
       var specialCodes = [38, 40, 13]; // up, down, enter
@@ -318,7 +337,40 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._comboHeadHTML = function(width) {
+      var value = this.getValue();
 
+      var html = '';
+      if (this._state.options.multiselect) {
+         // if multiple selections are allowed,
+         // we have (current values or placeholder) + input if isOpen
+         if (this._state.isOpen) {
+            html += (value.length > 0 ? this._renderMultiValue(value) : '');
+            html += '<input type="text" tabindex="-1" class="dd-input" placeholder="' +
+                  this._state.placeholder + '"/>';
+         }
+         else {
+            html += (value.length > 0 ? this._renderMultiValue(value) :
+               this._state.placeholder);
+         }
+      }
+      else {
+         // if only one selection is allowed,
+         // we have an input ifOpen else value/placeholder
+         if (this._state.isOpen) {
+            html += '<input type="text" tabindex="-1" class="dd-input" ' +
+               'placeholder="' + this._state.placeholder + '" ' +
+               (value.length > 0 ? 'value="' + value[0] + '"' : '') + '/>';
+         }
+         else {
+            html += (value.length > 0 ? value[0] : this._state.placeholder);
+         }
+      }
+
+      var contents = '<div class="dd-n dd-value" style="width: ' + width + 'px">' +
+         html + '</div>' + '<div class="dd-n dd-arrow dd-' +
+         (this._state.isOpen ? 'up': 'down') + '">&rsaquo;</div>';
+
+      return '<div class="dd-n dd-head">' + contents + '</div>';
    };
 
    Dropdown.prototype._plainHeadHTML = function(width) {
