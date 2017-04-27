@@ -25,6 +25,12 @@
    margin-right: 5px;
 }
 
+.dd-wrapper.dd-rubbery,
+.dd-wrapper.dd-rubbery .dd-head,
+.dd-wrapper.dd-rubbery .dd-value {
+   height: auto;
+}
+
 .dd-hidden {
    display: none;
 }
@@ -55,6 +61,8 @@
    overflow: hidden;
    width: 95%;
    height: 25px;
+   line-height: 25px;
+   vertical-align: top;
    box-sizing: border-box;
    padding: 0px 6px;
    cursor: pointer;
@@ -88,7 +96,7 @@
    background-color: #f6f6f6;
    z-index: 101;
    position: absolute;
-   top: 24px; /* -1 to overlap dd-head bottom-border */
+   margin-top: -1px; /* to overlap dd-head border */
    left: -1px; /* -1 because dd-bottom has left-border */
    border-radius: 3px;
    border: solid 1px #ccc;
@@ -119,8 +127,10 @@
    display: inline-block;
    width: auto;
    background-color: #6285af;
-   margin: 3px 5px;
-   margin-left: 0px;
+   margin-right: 5px;
+   margin-top: 3px;
+   margin-bottom: 2px;
+   vertical-align: top;
    color: white;
    padding: 0px 6px;
    border-radius: 3px;

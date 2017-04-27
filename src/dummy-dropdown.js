@@ -51,6 +51,7 @@ var DummyDropdown = (function() {
       this._state.items = this._parseOptionNodes(node);
       this._state.isOpen = false;
       this._state.isFocused = false;
+      this._state.isRubbery = options.multiselect;
 
       this._state.value = false;
       this._state.options = options;
@@ -85,11 +86,12 @@ var DummyDropdown = (function() {
 
       wrapper.innerHTML = markup;
       wrapper.className = 'dd-n dd-wrapper ' +
-         (this._state.isFocused ? 'dd-focused' : '');
+         (this._state.isFocused ? ' dd-focused' : '') +
+         (this._state.isRubbery ? ' dd-rubbery' : '');
    };
 
    Dropdown.prototype._bindEventListeners = function() {
-      this._wrapper.addEventListener('click', this._handleClick.bind(this));
+      this._wrapper.addEventListener('mouseup', this._handleClick.bind(this));
       this._wrapper.addEventListener('keyup',
          debounce(this._handleKeyboard.bind(this), 50));
 
@@ -100,16 +102,10 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleFocus = function(event) {
-      event.stopPropagation();
+      // console.log('focus', event.target);
       this._state.isFocused = true;
       this._state.isOpen = true;
-
-      if (hasClass(event.target, 'dd-delete')) {
-         this._handleDelete(event);
-      }
-      else {
-        this.render();
-      }
+      this.render();
 
       return false;
    };
@@ -149,6 +145,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleClick = function(event) {
+      // console.log('click', event.target);
       event.stopPropagation();
 
       if (hasClass(event.target, 'dd-item')) {
@@ -239,7 +236,6 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._renderMultiValue = function(value) {
-      // TODO: this is a bad idea in case values contain commas.
       var contents = '';
       for (var i = 0; i < value.length; i++) {
          var v = value[i];
