@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <title>DummyDropdown demo page</title>
     <script src="../src/dummy-dropdown.js"></script>
-    <script>
-      function prepare(id) {
-        var sel = document.getElementById("select-template").cloneNode(true);
-        var playground = document.getElementById("p-" + id);
-        sel.id = id;
-        playground.appendChild(sel);
-      }
-    </script>
+    <script src="../tests/test-data.js"></script>
     <link rel="stylesheet" type="text/css" href="static/examples.css"/>
 </head>
 <body>
@@ -29,9 +22,29 @@ withDesc: true      // показывать ли описания
     </div>
 
     <select id="select-template">
-        <option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
-        <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option>
+        <!--option value="Benjamin Linus" data-img="#" data-desc="A villain">Benjamin Linus</option>
+        <option value="John Locke" data-img="#" data-desc="A miserable man">John Locke</option-->
     </select>
+
+    <script>
+      var select = document.getElementById("select-template");
+      for (var i = 0; i < LostCast.length; i++) {
+        var p = LostCast[i];
+        var option = document.createElement('option');
+        option.value = p.character;
+        option.text = p.character;
+        option.setAttribute('data-img', p.photo);
+        option.setAttribute('data-desc', p.actor);
+        select.appendChild(option);
+      }
+
+      function prepare(id) {
+        var sel = document.getElementById("select-template").cloneNode(true);
+        var playground = document.getElementById("p-" + id);
+        sel.id = id;
+        playground.appendChild(sel);
+      }
+    </script>
 
     <main>
         <div>
