@@ -49,6 +49,10 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._initState = function(node, options) {
       this._state.items = this._parseOptionNodes(node);
+      this._state.visibleItems = this._state.items.slice(0);
+
+      this._arrowWidth = 25;
+
       this._state.isOpen = false;
       this._state.isFocused = false;
       this._state.isRubbery = options.multiselect;
@@ -74,9 +78,9 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype.render = function() {
-      console.log('render', this._state);
+      console.time('render');
       var wrapper = this._wrapper;
-      var ww = wrapper.clientWidth - 25;
+      var ww = parseFloat(wrapper.style.width) - this._arrowWidth;
 
       var markup = '';
       markup += (this._state.options.combobox ?
@@ -85,6 +89,8 @@ var DummyDropdown = (function() {
       markup += this._listContentsHTML();
 
       wrapper.innerHTML = markup;
+      console.timeEnd('render');
+
       wrapper.className = 'dd-n dd-wrapper ' +
          (this._state.isFocused ? ' dd-focused' : '') +
          (this._state.isRubbery ? ' dd-rubbery' : '');
@@ -181,7 +187,7 @@ var DummyDropdown = (function() {
    }
 
    Dropdown.prototype._handleKeyboard = function(event) {
-      var specialCodes = [38, 40, 13]; // up, down, space, enter
+      var specialCodes = [38, 40, 13]; // up, down, enter
 
       if (specialCodes.indexOf(event.keyCode) >= 0) {
          event.stopImmediatePropagation();
@@ -210,14 +216,32 @@ var DummyDropdown = (function() {
             if (current) removeClass(current, 'dd-hover');
             return false;
             break;
+
          case 40: // down
             if (!next) return false;
             next.className += ' dd-hover';
 
-            if (!checkInView(next.parentNode, next))
-               next.parentNode.scrollTop += next.clientHeight;
+            if (!checkInView(next.parentNode, next)) {
+               next.parentNode.scrollTop =
+                  (next.offsetTop - next.parentNode.clientHeight + next.clientHeight);
+            }
 
             if (current) removeClass(current, 'dd-hover');
+            return false;
+            break;
+
+         case 13: // enter
+            var active = this._wrapper.querySelector('.dd-hover');
+            if (!active) return false;
+            if (hasClass(active, 'dd-selected')) return false;
+
+            if (!this._state.options.multiselect) {
+               this.setValue([active.getAttribute('data-value')]);
+            } else {
+               var v = this.getValue();
+               this.setValue(v.concat([active.getAttribute('data-value')]));
+            }
+            this.close();
             return false;
             break;
 
@@ -234,8 +258,8 @@ var DummyDropdown = (function() {
 
       var value = this.getValue();
 
-      for (var i = 0; i < this._state.items.length; i++) {
-         item = this._state.items[i];
+      for (var i = 0; i < this._state.visibleItems.length; i++) {
+         item = this._state.visibleItems[i];
          var cls = '';
          if (value.indexOf(item.value) > -1) cls = 'dd-selected';
          markup = this._listItemHTML(item, cls);

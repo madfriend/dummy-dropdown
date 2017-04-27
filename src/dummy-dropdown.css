@@ -159,6 +159,7 @@
 
 .dd-tbl {
    display: table;
+   padding-bottom: 5px;
 }
 
 .dd-tbl .dd-left, .dd-tbl .dd-right {
@@ -168,10 +169,12 @@
 
 .dd-tbl .dd-right {
    width: auto;
+   height: 40px;
 }
 
 .dd-tbl .dd-left {
    width: 35px;
+   height: 40px;
    vertical-align: middle;
 }
 
@@ -194,7 +197,11 @@
 .dd-desc {
    color: #999;
    font-size: 11px;
-   height: 18px;
-   line-height: 18px;
+   height: 15px;
+   line-height: 15px;
    vertical-align: center;
+}
+
+.dd-text {
+   height: 25px;
 }
