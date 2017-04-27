@@ -134,17 +134,14 @@ var DummyDropdown = (function() {
    Dropdown.prototype._handleClick = function(event) {
       event.stopPropagation();
 
-      if (anyParentHasClass(event.target, 'dd-item')) {
-         var item = findParentOrSelfWithClass(event.target, 'dd-item');
+      if (hasClass(event.target, 'dd-item')) {
          if (!this._state.options.multiselect) {
-            this.setValue([item.getAttribute('data-value')]);
-            this.close();
+            this.setValue([event.target.getAttribute('data-value')]);
          } else {
             var v = this.getValue();
-            this.setValue(v.concat([item.getAttribute('data-value')]));
-            this.render();
+            this.setValue(v.concat([event.target.getAttribute('data-value')]));
          }
-
+         this.close();
          return false;
       }
 
