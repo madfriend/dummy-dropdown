@@ -18,6 +18,7 @@ var DummyDropdown = (function() {
       };
 
       var _options = _extendObject(defaults, options);
+      this._options = _options;
 
       var results = [];
       try {
