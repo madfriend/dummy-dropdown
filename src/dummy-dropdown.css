@@ -106,8 +106,13 @@
    cursor: pointer;
 }
 
-.dd-wrapper .dd-item:hover {
+.dd-wrapper .dd-item.dd-active {
    background-color: #efefef;
+}
+
+.dd-wrapper .dd-item.dd-selected {
+   background-color: #e3e3e3;
+   cursor: default;
 }
 
 .dd-v {

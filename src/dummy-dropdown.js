@@ -121,12 +121,12 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._handleDelete = function(event) {
       var del = event.target.getAttribute('data-value');
-      var values = this.getValue().split(',');
+      var values = this.getValue();
       var index = values.indexOf(del);
       if (index < 0) return false;
 
       values.splice(index, 1);
-      this.setValue(values.join(',') || false);
+      this.setValue(values);
       this.render();
       return false;
    };
@@ -137,12 +137,11 @@ var DummyDropdown = (function() {
       if (anyParentHasClass(event.target, 'dd-item')) {
          var item = findParentOrSelfWithClass(event.target, 'dd-item');
          if (!this._state.options.multiselect) {
-            this.setValue(item.getAttribute('data-value'));
+            this.setValue([item.getAttribute('data-value')]);
             this.close();
          } else {
             var v = this.getValue();
-            v = (v ? v + ',' : '');
-            this.setValue(v + item.getAttribute('data-value'));
+            this.setValue(v.concat([item.getAttribute('data-value')]));
             this.render();
          }
 
@@ -173,12 +172,13 @@ var DummyDropdown = (function() {
       var contents = '';
       var item, markup;
 
-      var value = (this.getValue() || '').split(',');
+      var value = this.getValue();
 
       for (var i = 0; i < this._state.items.length; i++) {
          item = this._state.items[i];
-         if (value.indexOf(item.value) > -1) continue;
-         markup = this._listItemHTML(item);
+         var cls = '';
+         if (value.indexOf(item.value) > -1) cls = 'dd-selected';
+         markup = this._listItemHTML(item, cls);
          contents += markup;
       }
 
@@ -188,13 +188,13 @@ var DummyDropdown = (function() {
       return '<div class="dd-n dd-bottom ' + cls + '">' + contents + '</div>';
    };
 
-   Dropdown.prototype._listItemHTML = function(item) {
+   Dropdown.prototype._listItemHTML = function(item, cls) {
       var contents = '';
       // if (this._state.options.withImg) {
       //    contents += '<div class="dd-n dd-img"></div>';
       // }
       contents = item.text;
-      return '<div class="dd-n dd-item" data-value="' + item.value + '">' +
+      return '<div class="dd-n dd-item ' + cls + '" data-value="' + item.value + '">' +
          contents + '</div>';
    };
 
@@ -205,11 +205,14 @@ var DummyDropdown = (function() {
    Dropdown.prototype._plainHeadHTML = function(width) {
       var value = this.getValue();
 
-      if (value && this._state.options.multiselect) {
+      if (value.length > 0 && this._state.options.multiselect) {
          value = this._renderMultiValue(value);
       }
-      else if (!value) {
+      else if (value.length === 0) {
          value = this._state.placeholder;
+      }
+      else {
+         value = value[0];
       }
 
       var isOpen = this._state.isOpen;
@@ -223,10 +226,9 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._renderMultiValue = function(value) {
       // TODO: this is a bad idea in case values contain commas.
-      var values = value.split(',');
       var contents = '';
-      for (var i = 0; i < values.length; i++) {
-         var v = values[i];
+      for (var i = 0; i < value.length; i++) {
+         var v = value[i];
          contents += '<div class="dd-n dd-v" data-value="' + v + '">' +
             '<div class="dd-n dd-text">' + v + '</div>' +
             '<div class="dd-n dd-delete" data-value="' + v +
@@ -271,7 +273,7 @@ var DummyDropdown = (function() {
 
    // Value getters-setters
    Dropdown.prototype.getValue = function() {
-      return this._state.value || false;
+      return this._state.value || [];
    };
 
    Dropdown.prototype.setValue = function(v) {
