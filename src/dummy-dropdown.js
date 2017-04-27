@@ -92,8 +92,8 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._bindEventListeners = function() {
       this._wrapper.addEventListener('mouseup', this._handleClick.bind(this));
-      this._wrapper.addEventListener('keyup',
-         debounce(this._handleKeyboard.bind(this), 50));
+      this._wrapper.addEventListener('keydown', this._handleKeyboard.bind(this));
+         // debounce(this._handleKeyboard.bind(this), 20));
 
       this._wrapper.addEventListener('focus', this._handleFocus.bind(this));
       this._wrapper.addEventListener('blur', this._handleBlur.bind(this));
@@ -176,7 +176,45 @@ var DummyDropdown = (function() {
    }
 
    Dropdown.prototype._handleKeyboard = function(event) {
-      // body...
+      var specialCodes = [38, 40, 13]; // up, down, space, enter
+
+      if (specialCodes.indexOf(event.keyCode) >= 0) {
+         event.stopImmediatePropagation();
+         event.preventDefault();
+      }
+
+      var current = this._wrapper.querySelector('.dd-hover');
+      var prev = false;
+      var next = false;
+
+      if (current) {
+         prev = current.previousElementSibling;
+         next = current.nextElementSibling;
+      }
+      else {
+         next = this._wrapper.querySelector('.dd-item');
+      }
+
+      switch (event.keyCode) {
+         case 38: // up
+            if (!prev) return false;
+            prev.className += ' dd-hover';
+            if (prev.offsetTop < prev.parentNode.scrollTop)
+               prev.parentNode.scrollTop = prev.offsetTop;
+            if (current) removeClass(current, 'dd-hover');
+            return false;
+            break;
+         case 40: // down
+            if (!next) return false;
+            next.className += ' dd-hover';
+            next.scrollIntoView(false);
+            if (current) removeClass(current, 'dd-hover');
+            return false;
+            break;
+
+         default:
+            break;
+      }
    };
 
    Dropdown.prototype._listContentsHTML = function() {
