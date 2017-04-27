@@ -199,15 +199,19 @@ var DummyDropdown = (function() {
          case 38: // up
             if (!prev) return false;
             prev.className += ' dd-hover';
-            if (prev.offsetTop < prev.parentNode.scrollTop)
+            if (!checkInView(prev.parentNode, prev))
                prev.parentNode.scrollTop = prev.offsetTop;
+
             if (current) removeClass(current, 'dd-hover');
             return false;
             break;
          case 40: // down
             if (!next) return false;
             next.className += ' dd-hover';
-            next.scrollIntoView(false);
+
+            if (!checkInView(next.parentNode, next))
+               next.scrollIntoView(false);
+
             if (current) removeClass(current, 'dd-hover');
             return false;
             break;
@@ -395,6 +399,20 @@ var DummyDropdown = (function() {
       var r = new RegExp('\\b' + cls + '\\b', 'g');
       node.className = node.className.replace(r, ' ');
    } // add removeClass
+
+   function checkInView(container, element) {
+      // Get container properties
+      var cTop = container.scrollTop;
+      var cBottom = cTop + container.clientHeight;
+
+      // Get element properties
+      var eTop = element.offsetTop;
+      var eBottom = eTop + element.clientHeight;
+
+      // Check if in view
+      var is = (eTop >= cTop && eBottom <= cBottom);
+      return is;
+   } // end checkInView
 
    return DropdownCollection;
 ///////////////////////////////////////////////////////////////////////////////
