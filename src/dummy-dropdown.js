@@ -812,6 +812,8 @@ var DummyDropdown = (function() {
 
    function ajaxGetJSON(url, callback) {
       var xhr;
+      var callbackFired = false;
+
       try {
          xhr = new(this.XMLHttpRequest || ActiveXObject)('MSXML2.XMLHTTP.3.0');
          xhr.open('GET', url, 1);
@@ -819,10 +821,21 @@ var DummyDropdown = (function() {
          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
          xhr.onreadystatechange = function() {
             xhr.readyState > 3 && callback && callback(JSON.parse(xhr.responseText), xhr);
+            callbackFired = true;
          };
+
          xhr.send();
       } catch (e) {
          console.log(e);
+         // try jsonp instead
+         if (callbackFired) return;
+
+         var script = document.createElement('script');
+         var name = 'f' + Math.random().toString(36).substr(2, 5);
+         window[name] = callback;
+
+         script.src = url + '&callback=' + name;
+         document.body.appendChild(script);
       }
    } // end ajaxGet
 
