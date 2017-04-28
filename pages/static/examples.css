@@ -47,6 +47,18 @@ main > div {
     vertical-align: top;
 }
 
+@media only screen and (max-width: 900px) {
+    main > div {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    main > div {
+        width: 100%;
+    }
+}
+
 main div p:first-child {
     font-weight: bold;
 }
