@@ -114,6 +114,11 @@
    box-sizing: content-box;
 }
 
+.dd-wrapper .dd-bottom:empty {
+   height: 0;
+   padding: 0;
+}
+
 .dd-wrapper .dd-item {
    padding: 0px 6px;
    cursor: pointer;
@@ -224,4 +229,9 @@
 
 .dd-input:focus {
    outline: 0;
+}
+
+.dd-not-found {
+   height: 25px;
+   padding: 0px 6px;
 }

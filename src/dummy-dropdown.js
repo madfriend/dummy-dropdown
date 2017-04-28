@@ -453,6 +453,10 @@ var DummyDropdown = (function() {
          }
       }
 
+      if (this._state.isOpen && this._state.visibleItems.length === 0) {
+         contents = '<div class="dd-n dd-not-found">Ничего не найдено</div>';
+      }
+
       if (!asOuterHTML) return contents;
 
       var cls = this._state.isOpen ? '' : 'dd-hidden';
