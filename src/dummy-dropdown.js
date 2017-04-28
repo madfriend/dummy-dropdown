@@ -211,7 +211,7 @@ var DummyDropdown = (function() {
       wrapper.tabIndex = 0;
 
       wrapper.className = 'dd-n dd-wrapper dd-hidden';
-      wrapper.style.width = node.offsetWidth + 'px';
+      wrapper.style.maxWidth = node.offsetWidth + 'px';
 
       node.className += ' dd-hidden';
       node.tabIndex = -1;
@@ -604,7 +604,7 @@ var DummyDropdown = (function() {
          }
       }
 
-      var contents = '<div class="dd-n dd-value" style="width: ' + width + 'px">' +
+      var contents = '<div class="dd-n dd-value" style="max-width: ' + width + 'px">' +
          html + '</div>' + '<div class="dd-n dd-arrow dd-' +
          (this._state.isOpen ? 'up': 'down') + '">&rsaquo;</div>';
 
@@ -626,7 +626,7 @@ var DummyDropdown = (function() {
 
       var isOpen = this._state.isOpen;
 
-      var contents = '<div class="dd-n dd-value" style="width: ' + width + 'px">' +
+      var contents = '<div class="dd-n dd-value" style="max-width: ' + width + 'px">' +
          value + '</div>' +
          '<div class="dd-n dd-arrow dd-' + (isOpen ? 'up': 'down') + '">&rsaquo;</div>';
 
