@@ -1,5 +1,7 @@
-if (typeof console === "undefined") {
-  var console = {log: function() {}};
+if (typeof console === "undefined" ||
+    typeof _DROPDOWN_DEBUG === "undefined" ||
+    !_DROPDOWN_DEBUG) {
+  var console = {log: function() {}, time: function() {}, timeEnd: function() {}};
 }
 
 var DummyDropdown = (function() {
@@ -73,9 +75,23 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._initVisibleItems = function() {
-      if (this._state.options.combobox)
-         return this._state.items.slice(0, maxResultsLen);
-      return this._state.items.slice(0);
+      if (!this._state.options.combobox) {
+         return this._state.items.slice(0);
+      }
+
+      var out = [];
+      var value = this.getValue();
+      var found = 0;
+
+      for (var i = 0; i < this._state.items.length; i++) {
+         var item = this._state.items[i];
+         if (value.indexOf(item.value) >= 0) continue;
+         out.push(item);
+         found++;
+         if (found >= maxResultsLen) break;
+      }
+
+      return out;
    };
 
    Dropdown.prototype._prepareLayout = function(node) {
@@ -121,6 +137,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._initSearchIndex = function() {
+      console.time('makeSearchIndex');
       var items = this._state.items;
       var index = this._searchIndex;
 
@@ -132,7 +149,7 @@ var DummyDropdown = (function() {
                allKeyboardLayoutInvariants(tokens[j].toLowerCase()));
          }
       };
-      console.log('built search index', this._searchIndex);
+      console.timeEnd('makeSearchIndex');
    };
 
    Dropdown.prototype._bindEventListeners = function() {
@@ -193,7 +210,8 @@ var DummyDropdown = (function() {
 
       values.splice(index, 1);
       this.setValue(values);
-      this.render();
+
+      if (this._state.isOpen) this.close();
       return false;
    };
 
@@ -217,6 +235,7 @@ var DummyDropdown = (function() {
 
       if (hasClass(tgt, 'dd-delete')) {
          this._handleDelete(event);
+         return false;
       }
 
       if (anyParentHasClass(tgt, 'dd-input')) {
@@ -340,6 +359,8 @@ var DummyDropdown = (function() {
    Dropdown.prototype._updateVisibleItems = function() {
       console.time('updateVisible');
       var query = this._state.searchQuery;
+      var currentValue = this.getValue();
+
       if (!query) {
          this._state.visibleItems = this._initVisibleItems();
          return true;
@@ -350,6 +371,7 @@ var DummyDropdown = (function() {
 
       for (var i = 0; i < this._state.items.length; i++) {
          var item = this._state.items[i];
+         if (currentValue.indexOf(item.value) >= 0) continue;
          if (this._matchesQuery(item)) {
             l++;
             filtered.push(item);
