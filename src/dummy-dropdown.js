@@ -136,7 +136,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._bindEventListeners = function() {
-      this._wrapper.addEventListener('mouseup', this._handleClick.bind(this));
+      this._wrapper.addEventListener('mousedown', this._handleClick.bind(this));
       this._wrapper.addEventListener('keydown', this._handleSpecialKeys.bind(this));
       this._wrapper.addEventListener('keyup', debounce(
          this._handleTextInput.bind(this), kbdDebounceTimeout));
@@ -198,7 +198,6 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleClick = function(event) {
-      // console.log('click', event.target);
       event.stopPropagation();
       var tgt = event.target;
 
@@ -210,7 +209,6 @@ var DummyDropdown = (function() {
             this.setValue([tgt.getAttribute('data-value')]);
          } else {
             var v = this.getValue();
-            console.log('concat', v, tgt.getAttribute('data-value'));
             this.setValue(v.concat([tgt.getAttribute('data-value')]));
          }
          this.close();
@@ -410,23 +408,25 @@ var DummyDropdown = (function() {
 
       if (this._state.options.withImages && this._state.options.withDesc) {
          tpl = '<div class="dd-n dd-tbl">' +
-               '<div class="dd-n dd-img dd-left">' +
-                  (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
-               '</div>' +
-               '<div class="dd-n dd-right">' +
-                  '<div class="dd-n dd-t">{{text}}</div>' +
-                  '<div class="dd-n dd-desc">{{desc}}</div>' +
-               '</div></div>';
+                  '<div class="dd-n dd-img dd-left">' +
+                     (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
+                  '</div>' +
+                  '<div class="dd-n dd-right">' +
+                     '<div class="dd-n dd-t">{{text}}</div>' +
+                     '<div class="dd-n dd-desc">{{desc}}</div>' +
+                  '</div>' +
+               '</div>';
       }
 
       else if (this._state.options.withImages && !this._state.options.withDesc) {
          tpl = '<div class="dd-n dd-tbl">' +
-               '<div class="dd-n dd-img dd-left">' +
-               (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
-               '</div>' +
-               '<div class="dd-n dd-right">' +
-                  '<div class="dd-n dd-t">{{text}}</div>' +
-               '</div></div>';
+                  '<div class="dd-n dd-img dd-left">' +
+                  (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
+                  '</div>' +
+                  '<div class="dd-n dd-right">' +
+                     '<div class="dd-n dd-t">{{text}}</div>' +
+                  '</div>' +
+               '</div>';
       }
 
       else if (this._state.options.withDesc) {
