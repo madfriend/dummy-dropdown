@@ -63,6 +63,7 @@ var DummyDropdown = (function() {
 
       this._state.isOpen = false;
       this._state.isFocused = false;
+      this._state.isAddingFocusOnInput = false;
       this._state.isRubbery = options.multiselect;
 
       this._state.value = false;
@@ -98,12 +99,13 @@ var DummyDropdown = (function() {
       this._injectStyles();
 
       var wrapper = document.createElement('div');
-      wrapper.setAttribute('tabindex', 0);
+      wrapper.tabIndex = 0;
 
       wrapper.className = 'dd-n dd-wrapper dd-hidden';
       wrapper.style.width = node.offsetWidth + 'px';
 
       node.className += ' dd-hidden';
+      node.tabIndex = -1;
       node.parentNode.insertBefore(wrapper, node);
       // 2. Save a reference to the new wrapper box.
       return wrapper;
@@ -123,6 +125,9 @@ var DummyDropdown = (function() {
 
       wrapper.innerHTML = markup;
       console.timeEnd('render');
+
+      var i = wrapper.querySelector('.dd-input');
+      if (i) i.addEventListener('blur', this._handleInputBlur.bind(this));
 
       wrapper.className = 'dd-n dd-wrapper ' +
          (this._state.isFocused ? ' dd-focused' : '') +
@@ -159,13 +164,13 @@ var DummyDropdown = (function() {
          this._handleTextInput.bind(this), kbdDebounceTimeout));
 
       this._wrapper.addEventListener('focus', this._handleFocus.bind(this));
-      this._wrapper.addEventListener('focusout', this._handleFocusout.bind(this));
+      this._wrapper.addEventListener('blur', this._handleFocusout.bind(this));
 
       this._wrapper.addEventListener('mouseover', this._handleMouseover.bind(this));
    };
 
    Dropdown.prototype._handleFocus = function(event) {
-      // console.log('focus', event.target);
+      console.log('focus', event);
       this._state.isFocused = true;
       this._state.isOpen = true;
       this.render();
@@ -192,9 +197,12 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleFocusout = function(event) {
-      // console.log('focusout', event);
+      console.log('blur - parent', event);
+
       var t = event.relatedTarget || false;
       if (t && hasClass(t, 'dd-input')) return false;
+
+      if (this._state.isAddingFocusOnInput) return false;
 
       event.stopPropagation();
       this._state.isFocused = false;
@@ -260,11 +268,20 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._focusOnInput = function() {
       var i = this._wrapper.querySelector('.dd-input');
+      this._state.isAddingFocusOnInput = true;
       i.focus();
+      this._state.isAddingFocusOnInput = false;
       var v = i.value;
       i.value = '';
       i.value = v;
       return true;
+   };
+
+   Dropdown.prototype._handleInputBlur = function(event) {
+      console.log('blur - input');
+      this._state.isFocused = false;
+      this.close();
+      return false;
    };
 
    Dropdown.prototype._handleSpecialKeys = function(event) {
