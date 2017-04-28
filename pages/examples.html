@@ -119,6 +119,29 @@ ajaxSearchURL: false // если не false и combobox, то ищем ещё и
             </script>
         </div>
 
+        <div>
+            <p>Комбобокс + картинки, описания</p>
+            <p class="playground" id="p-ex9"></p>
+            <script>
+              prepare("ex9");
+              new DummyDropdown("#ex9",
+                {withImages: true, withDesc: true,
+                 combobox: true
+               });
+            </script>
+        </div>
+
+        <div>
+            <p>Комбобокс + AJAX поиск</p>
+            <p class="playground" id="p-ex10"></p>
+            <script>
+              prepare("ex10");
+              new DummyDropdown("#ex10", {
+                 combobox: true,
+                 ajaxSearchURL: "http://dummy-dropdown-api.herokuapp.com/search?query={{query}}"
+               });
+            </script>
+        </div>
     </main>
 
     <script>

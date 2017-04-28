@@ -16,7 +16,7 @@ var DummyDropdown = (function() {
          combobox: false,
          withImages: false,
          withDesc: false,
-         ajaxMatchURL: false
+         ajaxSearchURL: false
       };
 
       var _options = _extendObject(defaults, options);
@@ -410,27 +410,52 @@ var DummyDropdown = (function() {
       var query = this._state.searchQuery;
       var currentValue = this.getValue();
 
+      function filterItems(whitelist) {
+         var l = 0;
+         var filtered = [];
+
+         for (var i = 0; i < this._state.items.length; i++) {
+            var item = this._state.items[i];
+            if (currentValue.indexOf(item.value) >= 0) continue;
+            if (whitelist.indexOf(item.value) >= 0 || this._matchesQuery(item)) {
+               l++;
+               filtered.push(item);
+            }
+            if (l >= maxResultsLen) break;
+         };
+         this._state.visibleItems = filtered;
+      };
+
+      filterItems = filterItems.bind(this);
+
       if (!query) {
          this._state.visibleItems = this._initVisibleItems();
          return true;
       }
 
-      var l = 0;
-      var filtered = [];
+      if (this._state.options.combobox &&
+          this._state.options.ajaxSearchURL) {
 
-      for (var i = 0; i < this._state.items.length; i++) {
-         var item = this._state.items[i];
-         if (currentValue.indexOf(item.value) >= 0) continue;
-         if (this._matchesQuery(item)) {
-            l++;
-            filtered.push(item);
-         }
-         if (l >= maxResultsLen) break;
-      };
-      this._state.visibleItems = filtered;
+         this._searchItemsOnServer(function(results) {
+            filterItems(results);
+            callback();
+         });
+
+      }
+      else {
+         filterItems([]);
+         callback();
+      }
+
       // console.timeEnd('updateVisible');
-      callback();
       return true;
+   };
+
+   Dropdown.prototype._searchItemsOnServer = function(callback) {
+      var query = this._state.searchQuery;
+      var url = this._state.options.ajaxSearchURL.replace(
+         '{{query}}', encodeURIComponent(query));
+      ajaxGetJSON(url, callback);
    };
 
    Dropdown.prototype._matchesQuery = function(item) {
@@ -756,6 +781,24 @@ var DummyDropdown = (function() {
       }
       return word;
    } // end translit
+
+
+   function ajaxGetJSON(url, callback) {
+      var xhr;
+      try {
+         xhr = new(this.XMLHttpRequest || ActiveXObject)('MSXML2.XMLHTTP.3.0');
+         xhr.open('GET', url, 1);
+         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+         xhr.onreadystatechange = function() {
+            xhr.readyState > 3 && callback && callback(JSON.parse(xhr.responseText), xhr);
+         };
+         xhr.send();
+      } catch (e) {
+         console.log(e);
+      }
+   } // end ajaxGet
+
 
    return DropdownCollection;
 ///////////////////////////////////////////////////////////////////////////////
