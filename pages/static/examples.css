@@ -44,6 +44,7 @@ main > div {
     box-sizing: border-box;
     min-height: 80px;
     padding: 10px;
+    vertical-align: top;
 }
 
 main div p:first-child {
