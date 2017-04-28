@@ -257,3 +257,8 @@
    height: 25px;
    padding: 0px 6px;
 }
+
+.dd-input:focus::-webkit-input-placeholder { color: transparent; }
+.dd-input:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
+.dd-input:focus::-moz-placeholder { color:transparent; } /* FF 19+ */
+.dd-input:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */

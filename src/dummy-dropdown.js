@@ -673,7 +673,9 @@ var DummyDropdown = (function() {
          }.bind(this), 10);
 
          var v = i.value;
+         i.value = '';
          i.value = v;
+
       }.bind(this), 10);
 
       return true;
