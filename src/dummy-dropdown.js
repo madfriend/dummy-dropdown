@@ -415,6 +415,7 @@ var DummyDropdown = (function() {
       };
       this._state.visibleItems = filtered;
       // console.timeEnd('updateVisible');
+      callback();
       return true;
    };
 
