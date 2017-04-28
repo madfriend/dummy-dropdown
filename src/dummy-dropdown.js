@@ -129,7 +129,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype.render = function() {
-      console.time('render');
+      // console.time('render');
       // console.log(this._state);
       var wrapper = this._wrapper;
       wrapper.style.display = 'none';
@@ -142,7 +142,7 @@ var DummyDropdown = (function() {
       markup += this._listContentsHTML();
 
       wrapper.innerHTML = markup;
-      console.timeEnd('render');
+      // console.timeEnd('render');
 
       var i = wrapper.querySelector('.dd-input');
       if (i) i.addEventListener('blur', this._handleInputBlur.bind(this));
@@ -153,14 +153,14 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._renderTail = function() {
-      console.time('renderTail');
+      // console.time('renderTail');
       var btm = this._wrapper.querySelector('.dd-bottom');
       btm.innerHTML = this._listContentsHTML(false);
-      console.timeEnd('renderTail');
+      // console.timeEnd('renderTail');
    };
 
    Dropdown.prototype._initSearchIndex = function() {
-      console.time('makeSearchIndex');
+      // console.time('makeSearchIndex');
       var items = this._state.items;
       var index = this._searchIndex;
 
@@ -172,7 +172,7 @@ var DummyDropdown = (function() {
                allKeyboardLayoutInvariants(tokens[j].toLowerCase()));
          }
       };
-      console.timeEnd('makeSearchIndex');
+      // console.timeEnd('makeSearchIndex');
    };
 
    Dropdown.prototype._bindEventListeners = function() {
@@ -242,6 +242,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleClick = function(event) {
+      console.log('click', event);
       event.stopPropagation();
       var tgt = event.target;
 
@@ -381,17 +382,17 @@ var DummyDropdown = (function() {
       if (val === this._state.searchQuery) return false;
 
       window.clearTimeout(this._timer);
+
       this._timer = window.setTimeout(function() {
-         this._state.searchQuery = val;
-         this._updateVisibleItems();
-         this._renderTail();
-      }.bind(this), 0);
+            this._state.searchQuery = val;
+            this._updateVisibleItems(this._renderTail.bind(this));
+         }.bind(this), 0);
 
       return false;
    };
 
-   Dropdown.prototype._updateVisibleItems = function() {
-      console.time('updateVisible');
+   Dropdown.prototype._updateVisibleItems = function(callback) {
+      // console.time('updateVisible');
       var query = this._state.searchQuery;
       var currentValue = this.getValue();
 
@@ -413,7 +414,7 @@ var DummyDropdown = (function() {
          if (l >= maxResultsLen) break;
       };
       this._state.visibleItems = filtered;
-      console.timeEnd('updateVisible');
+      // console.timeEnd('updateVisible');
       return true;
    };
 

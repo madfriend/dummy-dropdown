@@ -2,6 +2,17 @@ body {
     font-family: -apple-system, BlinkMacSystemFont,
         'Helvetica Neue', Arial, sans-serif;
     background-color: #fdfdfd;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+main {
+   width: 100%;
+   padding: 0;
+   margin: 0;
+   display: block;
 }
 
 header {
@@ -30,6 +41,7 @@ main {
 
 main div {
     width: 33%;
+    display: inline-block;
     min-width: 200px;
     box-sizing: border-box;
     min-height: 80px;
