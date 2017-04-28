@@ -2,4 +2,4 @@
 
 Примеры использования: https://dummy-dropdown.surge.sh/pages/examples.html
 
-![Скриншот](pages/static/screenshot.png?raw=true "Скриншот")
+<img src="pages/static/screenshot.png?raw=true" width=600/>
