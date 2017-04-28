@@ -189,6 +189,10 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype._handleFocus = function(event) {
       console.log('focus', event);
+      if (this._state.isFocused) {
+         return false;
+      }
+
       this._state.isFocused = true;
       this._state.isOpen = true;
       this.render();
@@ -215,11 +219,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleFocusout = function(event) {
-      console.log('blur - parent', event);
-
-      var t = event.relatedTarget || false;
-      if (t && hasClass(t, 'dd-input')) return false;
-
+      console.log('blur - parent', this._state.isAddingFocusOnInput);
       if (this._state.isAddingFocusOnInput) return false;
 
       event.stopPropagation();
@@ -229,6 +229,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._handleDelete = function(event) {
+      console.log('handleDelete', event.target, event.target.getAttribute('data-value'));
       var del = event.target.getAttribute('data-value');
       var values = this.getValue();
       var index = values.indexOf(del);
@@ -238,6 +239,7 @@ var DummyDropdown = (function() {
       this.setValue(values);
 
       if (this._state.isOpen) this.close();
+      else this.render();
       return false;
    };
 
@@ -265,11 +267,16 @@ var DummyDropdown = (function() {
          return false;
       }
 
-      if (anyParentHasClass(tgt, 'dd-input')) {
-         this._focusOnInput();
+      if (hasClass(tgt, 'dd-input')) {
+         return false;
+         // this._focusOnInput();
       }
 
-      return false;
+      return setTimeout(function() {
+         console.log('setting focus to parent');
+         if (!this._state.isFocused) this._wrapper.focus();
+      }.bind(this), 10);
+
    };
 
    Dropdown.prototype.close = function() {
@@ -288,10 +295,17 @@ var DummyDropdown = (function() {
    Dropdown.prototype._focusOnInput = function() {
       var i = this._wrapper.querySelector('.dd-input');
       this._state.isAddingFocusOnInput = true;
-      i.focus();
-      this._state.isAddingFocusOnInput = false;
-      var v = i.value;
-      i.value = v;
+      setTimeout(function() {
+         console.log('setting focus on input');
+         i.focus();
+         setTimeout(function() { // IE9..
+            this._state.isAddingFocusOnInput = false;
+         }.bind(this), 10);
+
+         var v = i.value;
+         i.value = v;
+      }.bind(this), 10);
+
       return true;
    };
 
