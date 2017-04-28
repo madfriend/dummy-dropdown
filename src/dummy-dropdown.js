@@ -22,6 +22,8 @@ var DummyDropdown = (function() {
       var _options = _extendObject(defaults, options);
       this._options = _options;
 
+      this._injectStyles();
+
       var results = [];
       try {
          results = document.querySelectorAll(selector);
@@ -38,6 +40,23 @@ var DummyDropdown = (function() {
 
    DropdownCollection.prototype.get = function(i) {
       return this.dropdowns[i || 0];
+   };
+
+   DropdownCollection.prototype._injectStyles = function() {
+      var linkId = 'dd-css-link';
+      if (document.getElementById(linkId)) {
+         return true;
+      }
+
+      var head  = document.getElementsByTagName('head')[0];
+      var link  = document.createElement('link');
+      link.id   = linkId;
+      link.rel  = 'stylesheet';
+      link.type = 'text/css';
+      link.href = '../src/dummy-dropdown.css';
+      link.media = 'all';
+      head.appendChild(link);
+
    };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,8 +115,6 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._prepareLayout = function(node) {
-      this._injectStyles();
-
       var wrapper = document.createElement('div');
       wrapper.tabIndex = 0;
 
@@ -115,6 +132,7 @@ var DummyDropdown = (function() {
       console.time('render');
       // console.log(this._state);
       var wrapper = this._wrapper;
+      wrapper.style.display = 'none';
       var ww = parseFloat(wrapper.style.width) - arrowWidth;
 
       var markup = '';
@@ -557,23 +575,6 @@ var DummyDropdown = (function() {
             '">&times;</div></div>';
       }
       return contents;
-   };
-
-   Dropdown.prototype._injectStyles = function() {
-      var linkId = 'dd-css-link';
-      if (document.getElementById(linkId)) {
-         return true;
-      }
-
-      var head  = document.getElementsByTagName('head')[0];
-      var link  = document.createElement('link');
-      link.id   = linkId;
-      link.rel  = 'stylesheet';
-      link.type = 'text/css';
-      link.href = '../src/dummy-dropdown.css';
-      link.media = 'all';
-      head.appendChild(link);
-
    };
 
    Dropdown.prototype._parseOptionNodes = function(selectNode) {

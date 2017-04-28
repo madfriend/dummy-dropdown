@@ -10,7 +10,7 @@
 }
 
 .dd-wrapper {
-   display: inline-block;
+   display: inline-block !important;
    position: relative;
    height: 25px;
    line-height: 25px;
