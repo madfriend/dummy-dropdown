@@ -65,7 +65,7 @@ var DummyDropdown = (function() {
       this._initState(selectNode, options);
       this._timer = false;
 
-      this._wrapper = this._prepareLayout(selectNode);
+      this._wrapper = this._initLayout(selectNode);
       this.render();
       this._bindEventListeners();
    };
@@ -74,6 +74,68 @@ var DummyDropdown = (function() {
    var kbdDebounceTimeout = 100;
    var maxResultsLen = 30;
 
+   // Public API //////////////////////////////////////////////////////////////
+   Dropdown.prototype.getValue = function() {
+      return this._state.value || [];
+   };
+
+   Dropdown.prototype.setValue = function(v) {
+      this._state.value = v;
+   };
+
+   Dropdown.prototype.val = function(v) {
+      return v ? this.setValue(v) : this.getValue();
+   };
+
+   Dropdown.prototype.open = function() {
+      if (this._state.isOpen) return true;
+
+      this._state.isOpen = true;
+      this._state.isFocused = true;
+      this._wrapper.focus();
+      this.render();
+      return true;
+   };
+
+   Dropdown.prototype.close = function() {
+      if (!this._state.isOpen) return true;
+
+      this._state.isOpen = false;
+      this._state.isFocused = false;
+      this._state.searchQuery = '';
+      this._state.visibleItems = this._initVisibleItems();
+
+      this._wrapper.blur();
+      this.render();
+      return true;
+   };
+
+   Dropdown.prototype.render = function() {
+      // console.time('render');
+      // console.log(this._state);
+      var wrapper = this._wrapper;
+      wrapper.style.display = 'none';
+      var ww = parseFloat(wrapper.style.width) - arrowWidth;
+
+      var markup = '';
+      markup += (this._state.options.combobox ?
+         this._comboHeadHTML(ww) : this._plainHeadHTML(ww));
+
+      markup += this._listContentsHTML();
+
+      wrapper.innerHTML = markup;
+      // console.timeEnd('render');
+
+      var i = wrapper.querySelector('.dd-input');
+      if (i) i.addEventListener('blur', this._handleInputBlur.bind(this));
+
+      wrapper.className = 'dd-n dd-wrapper ' +
+         (this._state.isFocused ? ' dd-focused' : '') +
+         (this._state.isRubbery ? ' dd-rubbery' : '');
+   };
+
+   // "Private" API ///////////////////////////////////////////////////////////
+   // Initialization methods
    Dropdown.prototype._initState = function(node, options) {
       this._state.options = options;
       this._state.items = this._parseOptionNodes(node);
@@ -114,53 +176,22 @@ var DummyDropdown = (function() {
       return out;
    };
 
-   Dropdown.prototype._prepareLayout = function(node) {
-      var wrapper = document.createElement('div');
-      wrapper.tabIndex = 0;
-
-      wrapper.className = 'dd-n dd-wrapper dd-hidden';
-      wrapper.style.width = node.offsetWidth + 'px';
-
-      node.className += ' dd-hidden';
-      node.tabIndex = -1;
-      node.parentNode.insertBefore(wrapper, node);
-      // 2. Save a reference to the new wrapper box.
-      return wrapper;
-   };
-
-   Dropdown.prototype.render = function() {
-      // console.time('render');
-      // console.log(this._state);
-      var wrapper = this._wrapper;
-      wrapper.style.display = 'none';
-      var ww = parseFloat(wrapper.style.width) - arrowWidth;
-
-      var markup = '';
-      markup += (this._state.options.combobox ?
-         this._comboHeadHTML(ww) : this._plainHeadHTML(ww));
-
-      markup += this._listContentsHTML();
-
-      wrapper.innerHTML = markup;
-      // console.timeEnd('render');
-
-      var i = wrapper.querySelector('.dd-input');
-      if (i) i.addEventListener('blur', this._handleInputBlur.bind(this));
-
-      wrapper.className = 'dd-n dd-wrapper ' +
-         (this._state.isFocused ? ' dd-focused' : '') +
-         (this._state.isRubbery ? ' dd-rubbery' : '');
-   };
-
-   Dropdown.prototype._renderTail = function() {
-      // console.time('renderTail');
-      var btm = this._wrapper.querySelector('.dd-bottom');
-      btm.innerHTML = this._listContentsHTML(false);
-      // console.timeEnd('renderTail');
-   };
-
    Dropdown.prototype._initSearchIndex = function() {
       // console.time('makeSearchIndex');
+
+      // Currently this is a very blunt structure.
+      // If performance of this piece of code would be disappointing,
+      // one might try to rewrite this structure (and whole search) to be
+      // more efficient.
+      //
+      // For example, we can make [token -> (value_id, span)] map where
+      // keys are all possible tokens in all possible layouts and
+      // value_id is the sentence which provided the token.
+      //
+      // Then we can be build a prefix tree for all tokens
+      // where each level of tree has special <END> key
+      // containing a list references of (value_id, span).
+
       var items = this._state.items;
       var index = this._searchIndex;
 
@@ -175,6 +206,21 @@ var DummyDropdown = (function() {
       // console.timeEnd('makeSearchIndex');
    };
 
+   Dropdown.prototype._initLayout = function(node) {
+      var wrapper = document.createElement('div');
+      wrapper.tabIndex = 0;
+
+      wrapper.className = 'dd-n dd-wrapper dd-hidden';
+      wrapper.style.width = node.offsetWidth + 'px';
+
+      node.className += ' dd-hidden';
+      node.tabIndex = -1;
+      node.parentNode.insertBefore(wrapper, node);
+      // 2. Save a reference to the new wrapper box.
+      return wrapper;
+   };
+
+   // Event API: bind + all event handlers.
    Dropdown.prototype._bindEventListeners = function() {
       this._wrapper.addEventListener('mousedown', this._handleClick.bind(this));
       this._wrapper.addEventListener('keydown', this._handleSpecialKeys.bind(this));
@@ -276,37 +322,6 @@ var DummyDropdown = (function() {
          console.log('setting focus to parent');
          if (!this._state.isFocused) this._wrapper.focus();
       }.bind(this), 10);
-
-   };
-
-   Dropdown.prototype.close = function() {
-      if (!this._state.isOpen) return true;
-
-      this._state.isOpen = false;
-      this._state.isFocused = false;
-      this._state.searchQuery = '';
-      this._state.visibleItems = this._initVisibleItems();
-
-      this._wrapper.blur();
-      this.render();
-      return true;
-   }
-
-   Dropdown.prototype._focusOnInput = function() {
-      var i = this._wrapper.querySelector('.dd-input');
-      this._state.isAddingFocusOnInput = true;
-      setTimeout(function() {
-         console.log('setting focus on input');
-         i.focus();
-         setTimeout(function() { // IE9..
-            this._state.isAddingFocusOnInput = false;
-         }.bind(this), 10);
-
-         var v = i.value;
-         i.value = v;
-      }.bind(this), 10);
-
-      return true;
    };
 
    Dropdown.prototype._handleInputBlur = function(event) {
@@ -405,6 +420,7 @@ var DummyDropdown = (function() {
       return false;
    };
 
+   // Various pieces of search API
    Dropdown.prototype._updateVisibleItems = function(callback) {
       // console.time('updateVisible');
       var query = this._state.searchQuery;
@@ -465,6 +481,14 @@ var DummyDropdown = (function() {
          if (startsWith(tests[i], q.toLowerCase())) return true;
       };
       return false;
+   };
+
+   // HTML managing methods
+   Dropdown.prototype._renderTail = function() {
+      // console.time('renderTail');
+      var btm = this._wrapper.querySelector('.dd-bottom');
+      btm.innerHTML = this._listContentsHTML(false);
+      // console.timeEnd('renderTail');
    };
 
    Dropdown.prototype._listContentsHTML = function(asOuterHTML) {
@@ -558,12 +582,12 @@ var DummyDropdown = (function() {
          // if multiple selections are allowed,
          // we have (current values or placeholder) + input if isOpen
          if (this._state.isOpen) {
-            html += (value.length > 0 ? this._renderMultiValue(value) : '');
+            html += (value.length > 0 ? this._renderMultiValueHTML(value) : '');
             html += '<input type="text" tabindex="-1" class="dd-input" placeholder="' +
                   this._state.placeholder + '"/>';
          }
          else {
-            html += (value.length > 0 ? this._renderMultiValue(value) :
+            html += (value.length > 0 ? this._renderMultiValueHTML(value) :
                this._state.placeholder);
          }
       }
@@ -591,7 +615,7 @@ var DummyDropdown = (function() {
       var value = this.getValue();
 
       if (value.length > 0 && this._state.options.multiselect) {
-         value = this._renderMultiValue(value);
+         value = this._renderMultiValueHTML(value);
       }
       else if (value.length === 0) {
          value = this._state.placeholder;
@@ -609,7 +633,7 @@ var DummyDropdown = (function() {
       return '<div class="dd-n dd-head">' + contents + '</div>';
    };
 
-   Dropdown.prototype._renderMultiValue = function(value) {
+   Dropdown.prototype._renderMultiValueHTML = function(value) {
       var contents = '';
       for (var i = 0; i < value.length; i++) {
          var v = value[i];
@@ -621,6 +645,7 @@ var DummyDropdown = (function() {
       return contents;
    };
 
+   // Miscellaneous
    Dropdown.prototype._parseOptionNodes = function(selectNode) {
       var results = [];
       var options = selectNode.options;
@@ -635,22 +660,24 @@ var DummyDropdown = (function() {
          });
       }
       return results;
-
    };
 
-   // Value getters-setters
-   Dropdown.prototype.getValue = function() {
-      return this._state.value || [];
-   };
+   Dropdown.prototype._focusOnInput = function() {
+      var i = this._wrapper.querySelector('.dd-input');
+      this._state.isAddingFocusOnInput = true;
+      setTimeout(function() {
+         console.log('setting focus on input');
+         i.focus();
+         setTimeout(function() { // IE9..
+            this._state.isAddingFocusOnInput = false;
+         }.bind(this), 10);
 
-   Dropdown.prototype.setValue = function(v) {
-      this._state.value = v;
-   };
+         var v = i.value;
+         i.value = v;
+      }.bind(this), 10);
 
-   Dropdown.prototype.val = function(v) {
-      return v ? this.setValue(v) : this.getValue();
+      return true;
    };
-
 
 //// Utilities ////////////////////////////////////////////////////////////////
    function _extendObject(A, B) {
