@@ -318,6 +318,10 @@ var DummyDropdown = (function() {
          // this._focusOnInput();
       }
 
+      if (hasClass(tgt, 'dd-arrow')) {
+         if (this._state.isOpen) return this.close();
+      }
+
       return setTimeout(function() {
          console.log('setting focus to parent');
          if (!this._state.isFocused) this._wrapper.focus();
