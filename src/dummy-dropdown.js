@@ -290,7 +290,6 @@ var DummyDropdown = (function() {
       i.focus();
       this._state.isAddingFocusOnInput = false;
       var v = i.value;
-      i.value = '';
       i.value = v;
       return true;
    };

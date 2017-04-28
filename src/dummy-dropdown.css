@@ -233,7 +233,8 @@
    display: block;
    font-size: 13px;
    padding: 0;
-   font-family: sans-serif;
+   font-family: -apple-system, BlinkMacSystemFont,
+        'Helvetica Neue', Arial, sans-serif;;
 }
 
 .dd-input:focus {
