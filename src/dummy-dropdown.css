@@ -40,7 +40,9 @@
 }
 
 .dd-wrapper:focus {
-   outline: 0;
+   outline: 0 none;
+   outline-width: 0;
+   outline-color: rgba(0, 0, 0, 0);
    outline-offset: -5px;
 }
 
@@ -146,14 +148,7 @@
    padding: 0px 6px;
    border-radius: 3px;
    height: 20px;
-}
-
-.dd-v .dd-delete {
-   font-size: 18px;
-   margin-left: 4px;
-   opacity: 0.5;
-   -webkit-transition: opacity 0.2s;
-   transition: opacity 0.2s;
+   overflow: hidden;
 }
 
 .dd-delete:hover {
@@ -166,6 +161,16 @@
    line-height: 20px;
    height: 20px;
    vertical-align: top;
+}
+
+.dd-v .dd-delete {
+   font-size: 20px;
+   margin-top: -1px;
+   box-sizing: border-box;
+   margin-left: 4px;
+   opacity: 0.5;
+   -webkit-transition: opacity 0.2s;
+   transition: opacity 0.2s;
 }
 
 .dd-tbl {
@@ -230,7 +235,9 @@
 }
 
 .dd-input:focus {
-   outline: 0;
+   outline: 0 none;
+   outline-width: 0;
+   outline-color: rgba(0, 0, 0, 0);
    outline-offset: -5px;
 }
 
