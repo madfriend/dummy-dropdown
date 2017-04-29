@@ -112,7 +112,7 @@ var DummyDropdown = (function() {
 
    Dropdown.prototype.render = function() {
       // console.time('render');
-      // console.log(this._state);
+      // console.log('render', this.getValue());
       var wrapper = this._wrapper;
       wrapper.style.display = 'none';
       var ww = parseFloat(wrapper.style.width) - arrowWidth;
@@ -284,8 +284,14 @@ var DummyDropdown = (function() {
       values.splice(index, 1);
       this.setValue(values);
 
-      if (this._state.isOpen) this.close();
-      else this.render();
+      if (this._state.isOpen) {
+         this.close();
+      }
+      else {
+         this._state.visibleItems = this._initVisibleItems();
+         this.render();
+      }
+
       return false;
    };
 
@@ -309,6 +315,7 @@ var DummyDropdown = (function() {
       }
 
       if (hasClass(tgt, 'dd-delete')) {
+         event.preventDefault();
          this._handleDelete(event);
          return false;
       }
@@ -429,6 +436,8 @@ var DummyDropdown = (function() {
       // console.time('updateVisible');
       var query = this._state.searchQuery;
       var currentValue = this.getValue();
+
+      callback = callback || function() {};
 
       function filterItems(whitelist) {
          var l = 0;
