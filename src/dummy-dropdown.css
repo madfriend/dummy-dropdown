@@ -23,6 +23,7 @@
    background-color: #fefefe;
    vertical-align: bottom;
    margin-right: 5px;
+   z-index: 1;
 }
 
 .dd-wrapper.dd-rubbery,
@@ -157,6 +158,8 @@
 .dd-wrapper .dd-item {
    padding: 0px 6px;
    cursor: pointer;
+   min-height: 25px;
+   line-height: 25px;
 }
 
 .dd-wrapper .dd-item.dd-hover {
@@ -172,7 +175,7 @@
    float: left;
    width: auto;
    background-color: #6285af;
-   margin-right: 3px;
+   margin-right: 2.5px;
    margin-top: 2.5px;
    color: white;
    padding: 0px 6px;

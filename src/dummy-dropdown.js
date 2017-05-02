@@ -198,10 +198,10 @@ var DummyDropdown = (function() {
 
       for (var i = 0; i < items.length; i++) {
          index[items[i].value] = [];
-         var tokens = items[i].value.split(/\s+/);
-         for (var j = 0; j < tokens.length; j++) {
+         var all_ngrams = allPossibleTokens(items[i].value);
+         for (var j = 0; j < all_ngrams.length; j++) {
             index[items[i].value] = index[items[i].value].concat(
-               allKeyboardLayoutInvariants(tokens[j].toLowerCase()));
+               allKeyboardLayoutInvariants(all_ngrams[j].toLowerCase()));
          }
       };
       // console.timeEnd('makeSearchIndex');
@@ -861,6 +861,33 @@ var DummyDropdown = (function() {
       }
    } // end ajaxGet
 
+   function allPossibleTokens(sentence) {
+      // aka all possible n-grams, each joined by space
+      var out = [];
+      var words = sentence.split(/\s+/);
+      var words2 = sentence.split(/\W*\s+\W*/);
+
+      for (var window = 2; window <= words.length; window++) {
+         for (var offset = 0; offset <= words.length - window; offset++) {
+            out = out.concat(words.slice(offset, offset+window).join(' '));
+            out = out.concat(words2.slice(offset, offset+window).join(' '));
+         }
+      }
+
+      out = words2.concat(words.concat(out));
+      return arrayUnique(out);
+   } // allPossibleTokens
+
+   function arrayUnique(array) {
+      var keys = Object.create({});
+      var out = [];
+      for (var i = 0; i < array.length; i++) {
+         if (keys[array[i]]) continue;
+         keys[array[i]] = 1;
+         out.push(array[i]);
+      }
+      return out;
+   }
 
    return DropdownCollection;
 ///////////////////////////////////////////////////////////////////////////////
