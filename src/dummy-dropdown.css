@@ -76,15 +76,12 @@
 .dd-head .dd-arrow {
    display: inline-block;
    position: absolute;
-   right: 0;
    top: 0;
+   right: 0;
    z-index: 100;
    font-size: 16px;
    width: 25px;
    height: 25px;
-   text-align: center;
-   line-height: 25px;
-   vertical-align: top;
    cursor: pointer;
 
 /*   -webkit-transition: all 0.2s;
@@ -92,24 +89,48 @@
    transition: all 0.2s;*/
 }
 
-.dd-arrow.dd-down {
-   -o-transform: rotate(90deg);
-   -moz-transform: rotate(90deg);
-   -ms-transform: rotate(90deg);
-   -webkit-transform: rotate(90deg);
-   transform: rotate(90deg);
+.dd-arrow:after {
+   height: 6px;
+   width: 6px;
+   content: '';
+   display: block;
+   position: absolute;
 }
 
-.dd-arrow.dd-up {
-   -o-transform: rotate(-90deg);
-   -moz-transform: rotate(-90deg);
-   -ms-transform: rotate(-90deg);
-   -webkit-transform: rotate(-90deg);
-   transform: rotate(-90deg);
+.dd-arrow.dd-down:after {
+   left: 8px;
+   top: 8px;
+
+   border-bottom: solid 1px #999;
+   border-right: solid 1px #999;
+
+   transform-origin: center center;
+
+   -o-transform: rotate(45deg);
+   -moz-transform: rotate(45deg);
+   -ms-transform: rotate(45deg);
+   -webkit-transform: rotate(45deg);
+   transform: rotate(45deg);
+}
+
+.dd-arrow.dd-up:after {
+   bottom: 7px;
+   left: 8px;
+
+   border-top: solid 1px #999;
+   border-right: solid 1px #999;
+
+   transform-origin: center center;
+
+   -o-transform: rotate(-45deg);
+   -moz-transform: rotate(-45deg);
+   -ms-transform: rotate(-45deg);
+   -webkit-transform: rotate(-45deg);
+   transform: rotate(-45deg);
 }
 
 .dd-wrapper .dd-bottom {
-   background-color: #f6f6f6;
+   background-color: #fefefe;
    z-index: 101;
    position: absolute;
    margin-top: -1px; /* to overlap dd-head border */
@@ -173,10 +194,10 @@
 }
 
 .dd-v .dd-delete {
-   font-size: 20px;
-   margin-top: -1px;
+   line-height: 20px;
+   height: 20px;
    box-sizing: border-box;
-   margin-left: 4px;
+   margin-left: 3px;
    opacity: 0.5;
    -webkit-transition: opacity 0.2s;
    transition: opacity 0.2s;

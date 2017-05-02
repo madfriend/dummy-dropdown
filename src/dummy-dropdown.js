@@ -115,11 +115,10 @@ var DummyDropdown = (function() {
       // console.log('render', this.getValue());
       var wrapper = this._wrapper;
       wrapper.style.display = 'none';
-      var ww = parseFloat(wrapper.style.width) - arrowWidth;
 
       var markup = '';
       markup += (this._state.options.combobox ?
-         this._comboHeadHTML(ww) : this._plainHeadHTML(ww));
+         this._comboHeadHTML() : this._plainHeadHTML());
 
       markup += this._listContentsHTML();
 
@@ -149,6 +148,8 @@ var DummyDropdown = (function() {
 
       this._state.value = false;
       this._state.placeholder = 'Выберите что-нибудь';
+
+      this._wrapperWidth = 0;
 
       this._searchIndex = {};
       if (options.combobox) {
@@ -212,6 +213,8 @@ var DummyDropdown = (function() {
 
       wrapper.className = 'dd-n dd-wrapper dd-hidden';
       wrapper.style.maxWidth = node.offsetWidth + 'px';
+
+      this._wrapperWidth = node.offsetWidth;
 
       node.className += ' dd-hidden';
       node.tabIndex = -1;
@@ -459,6 +462,7 @@ var DummyDropdown = (function() {
 
       if (!query) {
          this._state.visibleItems = this._initVisibleItems();
+         callback();
          return true;
       }
 
@@ -587,8 +591,9 @@ var DummyDropdown = (function() {
          contents + '</div>';
    };
 
-   Dropdown.prototype._comboHeadHTML = function(width) {
+   Dropdown.prototype._comboHeadHTML = function() {
       var value = this.getValue();
+      var width = this._wrapperWidth - arrowWidth;
 
       var html = '';
       if (this._state.options.multiselect) {
@@ -619,13 +624,14 @@ var DummyDropdown = (function() {
 
       var contents = '<div class="dd-n dd-value" style="max-width: ' + width + 'px">' +
          html + '</div>' + '<div class="dd-n dd-arrow dd-' +
-         (this._state.isOpen ? 'up': 'down') + '">&rsaquo;</div>';
+         (this._state.isOpen ? 'up': 'down') + '"></div>';
 
       return '<div class="dd-n dd-head">' + contents + '</div>';
    };
 
-   Dropdown.prototype._plainHeadHTML = function(width) {
+   Dropdown.prototype._plainHeadHTML = function() {
       var value = this.getValue();
+      var width = this._wrapperWidth - arrowWidth;
 
       if (value.length > 0 && this._state.options.multiselect) {
          value = this._renderMultiValueHTML(value);
@@ -641,7 +647,7 @@ var DummyDropdown = (function() {
 
       var contents = '<div class="dd-n dd-value" style="max-width: ' + width + 'px">' +
          value + '</div>' +
-         '<div class="dd-n dd-arrow dd-' + (isOpen ? 'up': 'down') + '">&rsaquo;</div>';
+         '<div class="dd-n dd-arrow dd-' + (isOpen ? 'up': 'down') + '"></div>';
 
       return '<div class="dd-n dd-head">' + contents + '</div>';
    };
