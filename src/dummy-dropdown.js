@@ -486,10 +486,14 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._searchItemsOnServer = function(callback) {
-      var query = this._state.searchQuery;
-      var url = this._state.options.ajaxSearchURL.replace(
-         '{{query}}', encodeURIComponent(query));
-      ajaxGetJSON(url, callback);
+      var queries = allKeyboardLayoutInvariants(this._state.searchQuery);
+      var qs = [];
+      for (var i = 0; i < queries.length; i++) {
+         qs.push('query=' + encodeURIComponent(queries[i]));
+      }
+
+      ajaxGetJSON(this._state.options.ajaxSearchURL + '?' + qs.join('&'),
+         callback);
    };
 
    Dropdown.prototype._matchesQuery = function(item) {
