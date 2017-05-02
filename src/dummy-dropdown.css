@@ -29,6 +29,7 @@
 .dd-wrapper.dd-rubbery .dd-head,
 .dd-wrapper.dd-rubbery .dd-value {
    height: auto;
+   min-height: 25px;
 }
 
 .dd-hidden {
@@ -71,6 +72,7 @@
    box-sizing: border-box;
    padding: 0px 6px;
    cursor: pointer;
+   clear: both;
 }
 
 .dd-head .dd-arrow {
@@ -158,49 +160,56 @@
 }
 
 .dd-wrapper .dd-item.dd-hover {
-   background-color: #efefef;
+   background-color: #f3f3f3;
 }
 
 .dd-wrapper .dd-item.dd-selected {
-   background-color: #eaeaea;
+   background-color: #dae2ea;
    cursor: default;
 }
 
 .dd-v {
-   display: inline-block;
+   float: left;
    width: auto;
    background-color: #6285af;
-   margin-right: 5px;
-   margin-top: 3px;
-   margin-bottom: 2px;
-   vertical-align: top;
+   margin-right: 3px;
+   margin-top: 2.5px;
    color: white;
    padding: 0px 6px;
    border-radius: 3px;
    height: 20px;
+   line-height: 20px;
+   vertical-align: middle;
+   box-sizing: border-box;
+   font-size: 0;
    overflow: hidden;
+   position: relative;
+   left: -3px;
 }
 
-.dd-delete:hover {
-   opacity: 1;
+.dd-v:last-child {
+   margin-bottom: 2.5px;
+}
+
+.dd-v .dd-delete:hover {
+   color: white;
 }
 
 .dd-v .dd-text, .dd-v .dd-delete {
+   font-size: 13px;
    display: inline-block;
    width: auto;
    line-height: 20px;
    height: 20px;
-   vertical-align: top;
+   vertical-align: middle;
 }
 
 .dd-v .dd-delete {
-   line-height: 20px;
-   height: 20px;
    box-sizing: border-box;
-   margin-left: 3px;
-   opacity: 0.5;
-   -webkit-transition: opacity 0.2s;
-   transition: opacity 0.2s;
+   margin-left: 6px;
+   color: rgba(255, 255, 255, 0.3);
+   -webkit-transition: all 0.2s;
+   transition: all 0.2s;
 }
 
 .dd-tbl {

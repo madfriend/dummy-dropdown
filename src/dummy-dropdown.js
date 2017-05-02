@@ -158,7 +158,7 @@ var DummyDropdown = (function() {
    };
 
    Dropdown.prototype._initVisibleItems = function() {
-      if (!this._state.options.combobox) {
+      if (!this._state.options.combobox && !this._state.options.multiselect) {
          return this._state.items.slice(0);
       }
 
@@ -402,6 +402,7 @@ var DummyDropdown = (function() {
                var v = this.getValue();
                this.setValue(v.concat([active.getAttribute('data-value')]));
             }
+
             this.close();
             return false;
             break;
@@ -659,7 +660,7 @@ var DummyDropdown = (function() {
          contents += '<div class="dd-n dd-v" data-value="' + v + '">' +
             '<div class="dd-n dd-text">' + v + '</div>' +
             '<div class="dd-n dd-delete" data-value="' + v +
-            '">&times;</div></div>';
+            '">&#10005;</div></div>';
       }
       return contents;
    };
