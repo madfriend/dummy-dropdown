@@ -22,7 +22,7 @@ HTMLLayer.prototype.initLayout = function(node) {
 };
 
 HTMLLayer.prototype.render = function(currentValue) {
-   // console.time('render');
+   console.time('render');
    var wrapper = this._wrapper;
    wrapper.style.display = 'none';
 
@@ -33,12 +33,21 @@ HTMLLayer.prototype.render = function(currentValue) {
    markup += this.listContentsHTML(currentValue);
 
    wrapper.innerHTML = markup;
-   // console.timeEnd('render');
 
    wrapper.className = 'dd-n dd-wrapper ' +
       (this._state.isFocused ? ' dd-focused' : '') +
       (this._state.isRubbery ? ' dd-rubbery' : '');
+
+   console.timeEnd('render');
+   if (this._state.isOpen) setTimeout(this.showImages.bind(this), 0);
 }
+
+HTMLLayer.prototype.showImages = function() {
+   var images = this._wrapper.querySelectorAll('img');
+   for (var i = 0; i < images.length; i++) {
+      if (!images[i].src) images[i].src = images[i].getAttribute('data-src');
+   };
+};
 
 HTMLLayer.prototype.renderTail = function(currentValue) {
    // console.time('renderTail');
@@ -90,7 +99,7 @@ HTMLLayer.prototype.listItemHTML = function(item, cls) {
    if (this._state.options.withImages && this._state.options.withDesc) {
       tpl = '<div class="dd-n dd-tbl">' +
                '<div class="dd-n dd-img dd-left">' +
-                  (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
+                  (item.img ? '<div class="dd-n dd-img"><img data-src="{{src}}"/></div>' : '') +
                '</div>' +
                '<div class="dd-n dd-right">' +
                   '<div class="dd-n dd-t">{{text}}</div>' +
@@ -102,7 +111,7 @@ HTMLLayer.prototype.listItemHTML = function(item, cls) {
    else if (this._state.options.withImages && !this._state.options.withDesc) {
       tpl = '<div class="dd-n dd-tbl">' +
                '<div class="dd-n dd-img dd-left">' +
-               (item.img ? '<div class="dd-n dd-img"><img src="{{src}}"/></div>' : '') +
+               (item.img ? '<div class="dd-n dd-img"><img data-src="{{src}}"/></div>' : '') +
                '</div>' +
                '<div class="dd-n dd-right">' +
                   '<div class="dd-n dd-t">{{text}}</div>' +
