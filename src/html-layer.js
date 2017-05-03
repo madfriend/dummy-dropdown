@@ -53,6 +53,7 @@ HTMLLayer.prototype.renderTail = function(currentValue) {
    // console.time('renderTail');
    var btm = this._wrapper.querySelector('.dd-bottom');
    btm.innerHTML = this.listContentsHTML(currentValue, false);
+   if (this._state.isOpen) setTimeout(this.showImages.bind(this), 0);
    // console.timeEnd('renderTail');
 };
 
