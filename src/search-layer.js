@@ -39,6 +39,7 @@ SearchLayer.prototype.buildSearchIndex = function() {
             utilsStr.allKeyboardLayoutInvariants(all_ngrams[j].toLowerCase()));
       }
    };
+
    // console.timeEnd('makeSearchIndex');
 }
 

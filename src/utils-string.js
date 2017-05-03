@@ -17,6 +17,7 @@ var enru = [
    'mь', ',б', '<Б', '.ю', '>Ю', '/.', '?, ', '@"', '#№', '$;', '^:', '&?'
 ];
 var layoutMap = {};
+
 for (var i = 0; i < enru.length; i++) {
    layoutMap[enru[i][0]] = enru[i][1];
    layoutMap[enru[i][1]] = enru[i][0];
@@ -29,30 +30,74 @@ export function swapLayout(word) {
    return out;
 }
 
-var translitMap = [
-   'щ ш ч ц ю я ё ж ъ ы э а б в г д е з и й к л м н о п р с т у ф х ь'.split(' '),
-   "shh sh ch cz yu ya yo zh `` y' e` a b v g d e z i j k l m n o p r s t u f x `".split(' ')
-];
+var ruAlphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+var enAlphabet = 'abcdefghijklmnopqrstuvwxyz';
 
-export function translit(word) {
-   // detect lang
-   var ruMatches = 0;
-   var enMatches = 0;
+var ruenMap = {};
+var enruMap = {};
 
-   for (var i = 0; i < translitMap[0].length; i++)
-      ruMatches += (word.indexOf(translitMap[0][i]) >= 0 ? 1 : 0);
-   for (var j = 0; j < translitMap[1].length; j++)
-      enMatches += (word.indexOf(translitMap[1][j]) >= 0 ? 1 : 0);
+var ruenMapKeys = [];
+var enruMapKeys = [];
 
-   var engToRus = (enMatches > ruMatches);
-   var rus = translitMap[0], eng = translitMap[1];
+var ruen_TO = 'a b v g d e jo zh z i j k l n o p r s t u f h c ch sh shh " y \' je ju ja'.split(' ');
+for (var i = 0; i < ruAlphabet.length; i++) {
+   ruenMap[ruAlphabet[i]] = ruen_TO[i];
+   ruenMapKeys.push(ruAlphabet[i]);
+}
 
-   for(var x = 0; x < rus.length; x++) {
-      word = word.split(engToRus ? eng[x] : rus[x]).join(engToRus ? rus[x] : eng[x]);
-      word = word.split(engToRus ? eng[x].toUpperCase() : rus[x].toUpperCase()).join(engToRus ? rus[x].toUpperCase() : eng[x].toUpperCase());
+var enru_FROM = 'a|b|v|g|d|e|jo,yo,ö|zh|z|i|j|k|l|m|n|o|p|r|s|t|u|f|h,x|c|ch|sh|shh,w|#|y|\'|je,ä|ju,yu,ü|ja,ya,q';
+enru_FROM = enru_FROM.split('|');
+
+for (var i = 0; i < ruAlphabet.length; i++) {
+   var en = enru_FROM[i].split(',');
+   for (var j = 0; j < en.length; j++) {
+      enruMap[en[j]] = ruAlphabet[i];
+      enruMapKeys.push(en[j]);
    }
-   return word;
+}
+
+ruenMapKeys.sort(compareKeys);
+enruMapKeys.sort(compareKeys);
+
+function compareKeys(key1, key2) {
+   if (key1.length !== key2.length) {
+      return (key2.length - key1.length);
+   }
+   else return key1.localeCompare(key2);
+}
+
+export function translit(word, debug) {
+   var map, keys;
+   var new_word = word.toLowerCase();
+
+   if (detectLang(word) === 'ru') {
+      map = ruenMap;
+      keys = ruenMapKeys;
+   }
+   else {
+      map = enruMap;
+      keys = enruMapKeys;
+   }
+
+   for (var i = 0; i < keys.length; i++) {
+      var re = new RegExp(keys[i], 'g');
+      new_word = new_word.replace(re, map[keys[i]]);
+   }
+
+   return new_word;
 } // end translit
+
+function detectLang(str) {
+   var ru_letters = 0;
+   var en_letters = 0;
+   for (var i = 0; i < str.length; i++) {
+      if (ruAlphabet.indexOf(str[i]) >= 0) ru_letters++;
+      if (enAlphabet.indexOf(str[i]) >= 0) en_letters++;
+   }
+
+   if (ru_letters > en_letters) return 'ru';
+   return 'en';
+}
 
 export function allPossibleTokens(sentence) {
    // aka all possible n-grams, each joined by space
