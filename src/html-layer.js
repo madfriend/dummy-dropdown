@@ -2,6 +2,7 @@ function HTMLLayer(state) {
    this._state = state;
    this._wrapperWidth = 0;
    this._arrowWidth = 25;
+   this._lastTailRenderResult = '';
 }
 
 HTMLLayer.prototype.initLayout = function(node) {
@@ -40,6 +41,7 @@ HTMLLayer.prototype.render = function(currentValue) {
 
    console.timeEnd('render');
    if (this._state.isOpen) setTimeout(this.showImages.bind(this), 0);
+   else this._lastTailRenderResult = '';
 }
 
 HTMLLayer.prototype.showImages = function() {
@@ -52,7 +54,12 @@ HTMLLayer.prototype.showImages = function() {
 HTMLLayer.prototype.renderTail = function(currentValue) {
    // console.time('renderTail');
    var btm = this._wrapper.querySelector('.dd-bottom');
-   btm.innerHTML = this.listContentsHTML(currentValue, false);
+   var newHTML = this.listContentsHTML(currentValue, false);
+   if (newHTML === this._lastTailRenderResult) return true;
+
+   btm.innerHTML = newHTML;
+   this._lastTailRenderResult = newHTML;
+
    if (this._state.isOpen) setTimeout(this.showImages.bind(this), 0);
    // console.timeEnd('renderTail');
 };
