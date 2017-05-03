@@ -298,3 +298,8 @@
 .dd-input:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
 .dd-input:focus::-moz-placeholder { color:transparent; } /* FF 19+ */
 .dd-input:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */
+
+.dd-input::-ms-clear {
+  width: 0;
+  height: 0;
+}
