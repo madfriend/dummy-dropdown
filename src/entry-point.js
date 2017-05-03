@@ -5,8 +5,8 @@ require('./dummy-dropdown.css');
 
 
 if (typeof console === "undefined" ||
-    typeof _DROPDOWN_DEBUG === "undefined" ||
-    !_DROPDOWN_DEBUG) {
+    typeof window._DROPDOWN_DEBUG === "undefined" ||
+    !window._DROPDOWN_DEBUG) {
   var console = {log: function() {}, time: function() {}, timeEnd: function() {}};
 }
 
