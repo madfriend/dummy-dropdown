@@ -31,7 +31,7 @@ ajaxSearchURL: false // если не false и combobox, то ищем ещё и
 
     <script>
       var select = document.getElementById("select-template");
-      for (var i = 0; i < LostCast.length; i++) {
+      for (var i = 0; i < Math.min(LostCast.length, 100); i++) {
         var p = LostCast[i];
         var option = document.createElement('option');
         option.value = p.character;
