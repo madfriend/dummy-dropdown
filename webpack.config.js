@@ -8,7 +8,7 @@ module.exports = {
       library: 'DummyDropdown',
    },
    plugins: [
-      // new webpack.optimize.UglifyJsPlugin({minimize: true})
+      new webpack.optimize.UglifyJsPlugin({minimize: true})
    ],
    module: {
       loaders: [
