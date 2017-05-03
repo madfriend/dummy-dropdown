@@ -218,7 +218,6 @@
 
 .dd-tbl {
    display: table;
-   padding-bottom: 5px;
 }
 
 .dd-tbl .dd-left, .dd-tbl .dd-right {
@@ -234,7 +233,6 @@
 .dd-tbl .dd-left {
    width: 35px;
    height: 40px;
-   vertical-align: middle;
 }
 
 .dd-img img {
@@ -244,6 +242,7 @@
 .dd-img {
    height: 30px;
    width: 30px;
+   margin-top: 5px;
    /*border-radius: 15px;*/
    overflow: hidden;
    text-align: center;
@@ -256,13 +255,15 @@
 .dd-desc {
    color: #999;
    font-size: 11px;
-   height: 15px;
-   line-height: 15px;
-   vertical-align: center;
+   height: 12px;
+   line-height: 12px;
+   padding-bottom: 3px;
+   box-sizing: content-box;
 }
 
 .dd-text {
    height: 25px;
+   line-height: 25px;
 }
 
 .dd-input {
