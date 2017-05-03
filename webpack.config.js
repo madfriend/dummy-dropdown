@@ -1,10 +1,21 @@
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+var webpack = require('webpack');
 
 module.exports = {
-    entry: './src/dummy-dropdown.js',
-    output: {
-        path: './dist',
-        filename: 'dummy-dropdown.min.js'
-    },
-    plugins: [new UglifyJSPlugin()]
+   entry: './src/entry-point.js',
+   output: {
+      path: __dirname + '/dist',
+      filename: 'dummy-dropdown.min.js',
+      library: 'DummyDropdown',
+   },
+   plugins: [
+      // new webpack.optimize.UglifyJsPlugin({minimize: true})
+   ],
+   module: {
+      loaders: [
+         {
+            test: /\.css$/,
+            loader: "style-loader!css-loader"
+         }
+      ]
+   }
 };
